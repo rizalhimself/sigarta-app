@@ -1,3 +1,18 @@
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+@import "flowbite";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Saat sidebar dikompresi di layar besar */
+.sidebar-collapsed {
+    width: 4rem !important;  /* Mengubah ukuran sidebar menjadi kecil */
+    transition: width 300ms ease-in-out;
+}
+
+.sidebar-collapsed .sidebar-text {
+    opacity: 0;
+    width: 0;
+    transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
