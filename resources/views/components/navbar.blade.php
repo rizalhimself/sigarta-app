@@ -1,4 +1,4 @@
-<header class="antialiased z-40">
+<header class="antialiased z-50">
     <nav class="shadow-lg bg-gray-50 border-gray-200 px-4 lg:px-5 py-2.5 dark:bg-gray-800 fixed top-0 left-0 right-0 z-50" data-navbar-sticky="top">
         <div class="flex flex-wrap justify-between items-center">
             <div class="flex justify-start items-center">
@@ -46,7 +46,7 @@
 
                 <!-- User Menu -->
                 <div class="relative ml-4">
-                    <button type="button" class="flex items-center text-sm  rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="dropdown">
+                    <button type="button" class="flex items-center text-sm  rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false">
                         <span class="sr-only">Open user menu</span>
                         <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
                         <div class="hidden md:hidden lg:block px-2.5 text-sm text-gray-800 dark:text-white">
@@ -54,13 +54,14 @@
                         </div>
                     </button>
                     <!-- Dropdown menu -->
-                    <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-l shadow-lg dark:bg-gray-700" id="dropdown">
+                    <div class="fixed right-2 w-48 top-16 bg-gray-50 rounded-lg shadow-lg dark:bg-gray-800 transform transition-transform duration-300 ease-in-out -translate-y-full hidden" id="user-dropdown">
                         <div class="py-3 px-4 text-sm text-gray-900 dark:text-white">
-                            <span class="lg:hidden font-bold">{{ auth()->user()->warga->nama_lengkap ?? 'Guest' }}</span>
-                            <span class="block font-medium">{{ auth()->user()->username }}</span>
-                            <span class="block text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span>
+                            <span class="block lg:hidden font-bold">{{ auth()->user()->warga->nama_lengkap ?? 'Guest' }}</span>
+                            <span class="hidden sm:block lg:block font-medium">{{ auth()->user()->username }}</span>
+                            <span class="block lg:hidden text-gray-500 dark:text-gray-400">{{ auth()->user()->username }}</span>
+                            <span class="hidden sm:block lg:block text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</span>
                         </div>
-                        <ul class="py-1">
+                        <ul class="py-1 px-1">
                             <li>
                                 <a href="#" class="block px-4 py-2 text-sm rounded-[10px] text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600">Profile</a>
                             </li>

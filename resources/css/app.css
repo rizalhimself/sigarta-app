@@ -4,6 +4,68 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Navbar tetap fixed */
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+}
+
+/* Sidebar tetap satu layar penuh */
+#sidebar {
+    position: absolute;
+    top: 3.5rem; /* Sesuai tinggi navbar */
+    left: 0;
+    bottom: 0;
+    width: 16rem; /* Sesuai lebar sidebar */
+    min-height: calc(100vh - 3.5rem); /* Sidebar tetap satu layar penuh */
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Pastikan sidebar tetap full height saat submenu belum dibuka */
+#sidebar > div {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Sidebar harus tetap memenuhi tinggi layar */
+html, body {
+    min-height: 100vh;
+    height: auto !important;
+    overflow-x: hidden;
+}
+
+/* Pastikan halaman utama bisa ikut bertambah tinggi */
+body.expand {
+    height: auto !important;
+    min-height: 100vh;
+}
+
+
+
+#kependudukan-dropdown {
+    max-height: 0;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+#kependudukan-dropdown.active {
+    max-height: 300px; /*nilai diambil dari jumlah submenu*/
+    opacity: 1;
+}
+
+/*setting fontawesome agar proporsional dengan text*/
+.fa-solid {
+    font-size: 16px;
+    width: 20px;
+}
+
 /* Saat sidebar dikompresi di layar besar */
 .sidebar-collapsed {
     width: 4rem !important;  /* Mengubah ukuran sidebar menjadi kecil */
@@ -15,4 +77,18 @@
     width: 0;
     transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
 }
+
+.curved-text {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    transform: rotate(-5deg);
+    letter-spacing: 2px;
+}
+
+
+
 
