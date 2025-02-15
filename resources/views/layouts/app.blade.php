@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,21 +8,30 @@
     <title>{{ config('app.name', 'SIGARTA') }}</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    @yield('scripts');
 </head>
 
 <body class="bg-gray-100">
-<div class="flex">
-    <!-- Sidebar -->
-    @include('components.sidebar')
+    <div class="flex mx-auto max-h-full">
 
-    <!--NavBar-->
-    @include('components.navbar')
-    {{--End NavBar--}}
+        <!--NavBar-->
+        @include('components.navbar')
+        {{-- End NavBar --}}
 
-    <!-- Main Content -->
-    <main class="flex-1 p-6">
-        @yield('content')
-    </main>
-</div>
+        <div class="container flex items-stretch mx-auto max-h-full">
+
+            <!-- Sidebar -->
+            @include('components.sidebar')
+
+            <!-- Main Content -->
+            <main id="mainContent" class="flex p-6 transition-all duration-300 lg:pl-64">
+                @yield('content')
+            </main>
+
+        </div>
+
+    </div>
 </body>
+
 </html>

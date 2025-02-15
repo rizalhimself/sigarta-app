@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\PendudukController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,8 +24,8 @@ Route::middleware('guest')->group(function () {
 
 // route logout
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-->middleware('auth')
-->name('logout');
+    ->middleware('auth')
+    ->name('logout');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,4 +33,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+// route data penduduk
+Route::middleware(['auth'])->group(function () {
+    Route::get('/data-penduduk', [PendudukController::class, 'index'])->name('data-penduduk.index');
+    Route::post('/data-penduduk', [PendudukController::class, 'store'])->name('data-penduduk.store');
+    Route::get('/data-penduduk/create', [PendudukController::class, 'create'])->name('data-penduduk.create');
+    Route::get('/data-penduduk/search', [PendudukController::class, 'search'])->name('data-penduduk.search');
+    Route::get('/data-penduduk/{id}', [PendudukController::class, 'show'])->name('data-penduduk.show');
+    Route::put('/data-penduduk/{id}', [PendudukController::class, 'update'])->name('data-penduduk.update');
+    Route::delete('/data-penduduk/{id}', [PendudukController::class, 'destroy'])->name('data-penduduk.destroy');
+    Route::get('/data-penduduk/{id}/edit', [PendudukController::class, 'edit'])->name('data-penduduk.edit');
+});
+
+require __DIR__ . '/auth.php';

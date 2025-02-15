@@ -1,8 +1,8 @@
 @import "@fortawesome/fontawesome-free/css/all.min.css";
 @import "flowbite";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 /* Navbar tetap fixed */
 nav {
@@ -16,18 +16,21 @@ nav {
 /* Sidebar tetap satu layar penuh */
 #sidebar {
     position: absolute;
-    top: 3.5rem; /* Sesuai tinggi navbar */
+    top: 3.5rem;
+    /* Sesuai tinggi navbar */
     left: 0;
     bottom: 0;
-    width: 16rem; /* Sesuai lebar sidebar */
-    min-height: calc(100vh - 3.5rem); /* Sidebar tetap satu layar penuh */
+    width: 16rem;
+    /* Sesuai lebar sidebar */
+    min-height: calc(100vh - 3.5rem);
+    /* Sidebar tetap satu layar penuh */
     height: auto;
     display: flex;
     flex-direction: column;
 }
 
 /* Pastikan sidebar tetap full height saat submenu belum dibuka */
-#sidebar > div {
+#sidebar>div {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -35,11 +38,36 @@ nav {
 }
 
 /* Sidebar harus tetap memenuhi tinggi layar */
-html, body {
+html,
+body {
     min-height: 100vh;
     height: auto !important;
-    overflow-x: hidden;
 }
+
+/* Mengatur agar hanya tabel yang bisa di-scroll, bukan halaman */
+@media (max-width: 640px) {
+    body {
+        overflow-x: auto !important;
+    }
+
+    .responsive-table-container {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto !important;
+        white-space: nowrap;
+        padding-bottom: 10px;
+    }
+
+    .responsive-table-container table {
+        width: 100%;
+        min-width: 700px !important;
+        max-width: 100%;
+    }
+}
+
+
+
+
 
 /* Pastikan halaman utama bisa ikut bertambah tinggi */
 body.expand {
@@ -56,7 +84,8 @@ body.expand {
 }
 
 #kependudukan-dropdown.active {
-    max-height: 300px; /*nilai diambil dari jumlah submenu*/
+    max-height: 300px;
+    /*nilai diambil dari jumlah submenu*/
     opacity: 1;
 }
 
@@ -68,7 +97,8 @@ body.expand {
 
 /* Saat sidebar dikompresi di layar besar */
 .sidebar-collapsed {
-    width: 4rem !important;  /* Mengubah ukuran sidebar menjadi kecil */
+    width: 4rem !important;
+    /* Mengubah ukuran sidebar menjadi kecil */
     transition: width 300ms ease-in-out;
 }
 
@@ -77,18 +107,4 @@ body.expand {
     width: 0;
     transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
 }
-
-.curved-text {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.5rem;
-    text-transform: uppercase;
-    transform: rotate(-5deg);
-    letter-spacing: 2px;
-}
-
-
-
 

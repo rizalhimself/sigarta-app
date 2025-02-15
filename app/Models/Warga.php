@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 /**
  *
@@ -104,7 +105,7 @@ class Warga extends Model
     // relasi ke tabel hasil_rapat
     public function hasilRapat()
     {
-        return $this->hasMany(HasilRapat::class, 'no_rumah', 'no_rumah');
+        return $this->hasManyThrough(HasilRapat::class, PenghuniRumah::class, 'warga_id', 'no_rumah', 'id', 'rumah_id');
     }
 
     // relasi ke tabel penghuni_rumah
@@ -118,4 +119,23 @@ class Warga extends Model
     {
         return $this->hasMany(Wisata::class, 'warga_id');
     }
+
+    // relasi ke tabel rumah
+    public function rumah()
+    {
+        return $this->hasOne(Rumah::class, 'pemilik_id');
+    }
+
+    // relasi ke tabel keluarga
+    public function keluarga()  {
+        return $this->hasOne(Keluarga::class, 'warga_id');
+    }
+
+     // Umur otomatis dihitung dari `tgl_lahir`
+     public function getUmurAttribute()
+     {
+         return Carbon::parse($this->tgl_lahir)->age;
+     }
+
+    
 }

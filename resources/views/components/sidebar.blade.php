@@ -1,4 +1,4 @@
-<aside id="sidebar" class="absolute h-full flex flex-col top-14 left-0 z-40 w-64 transition-transform -translate-x-full lg:translate-x-0" aria-label="Sidebar">
+<aside id="sidebar" class="absolute max-h-max flex flex-col top-14 left-0 z-40 w-64 transition-transform -translate-x-full lg:translate-x-0" aria-label="Sidebar">
     <div class="flex-grow px-3 py-4 bg-gray-50 dark:bg-gray-800">
         <div class="px-4 border-b border-gray-200 dark:border-gray-700" id="greeting-section">
             @include('components.sidebar-greetings')
@@ -29,9 +29,9 @@
                 {{--Submenu Kependudukan--}}
                 <ul id="kependudukan-dropdown" class="hidden overflow-hidden space-y-2 ml-6 transition-[max-height] duration-300 ease-in-out">
                     <li>
-                        <a href="/kependudukan/data-warga" class="flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                        <a href="{{route('data-penduduk.index')}}" class="flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                             <i class="fa-solid fa-user text-gray-500 mr-3"></i>
-                            Data Warga
+                            Data Penduduk
                         </a>
                     </li>
                     <li>

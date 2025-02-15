@@ -122,6 +122,11 @@ document.addEventListener('DOMContentLoaded', function () {
             // Jika layar besar, toggle class untuk menyembunyikan teks menu
             sidebar.classList.toggle('sidebar-collapsed');
             greetingSection.classList.toggle('hidden');
+            if (mainContent.classList.contains('lg:pl-64')) {
+                mainContent.classList.remove("lg:pl-64");
+            } else {
+                mainContent.classList.add("lg:pl-64");
+            }
         } else {
             // Jika layar kecil, sembunyikan sidebar sepenuhnya
             sidebar.classList.toggle('-translate-x-full');
