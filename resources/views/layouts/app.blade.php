@@ -32,6 +32,8 @@
         </div>
 
     </div>
+    <!-- Import Modal Global -->
+    @include('components.modal')
 </body>
 
 </html>

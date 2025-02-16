@@ -53,7 +53,7 @@ class PendudukController extends Controller
             'username' => 'required|string|unique:users,username|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:warga,ketua,sekertaris,bendahara1,bendahara2,humas1,humas2,kerohanian1,kerohanian2,pembantuUmum1,pembantuUmum2',
+            'role' => 'required|in:warga,ketua,kadus,sekertaris,bendahara1,bendahara2,humas,kerohanian,pembantuUmum',
 
             // Validasi Warga
             'nik' => 'required|string|size:16|unique:warga,nik',
@@ -109,7 +109,11 @@ class PendudukController extends Controller
     // Mengupdate data penduduk
     public function update(Request $request, Warga $warga)
     {
+        // Validasi data
         $request->validate([
+            'username' => 'required|string|max:255|unique:users,username,' . $warga->user_id,
+            'email' => 'required|email|max:255|unique:users,email,' . $warga->user_id,
+            'password' => 'nullable|min:6',
             'nik' => 'required|string|size:16|unique:warga,nik,' . $warga->id,
             'nama_lengkap' => 'required|string|max:255',
             'tempat_lahir' => 'required|string|max:255',
@@ -125,29 +129,28 @@ class PendudukController extends Controller
             'link_foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
+        // **1. Update data user**
+        $user = User::findOrFail($warga->user_id);
+        $user->update([
+            'username' => $request->username,
+            'email' => $request->email,
+        ]);
+
+        // **Update password hanya jika diisi**
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+        $user->save();
+
+        // **2. Update data warga (kecuali foto)**
         $warga->update($request->except(['link_foto', 'link_foto_ktp']));
+
+        // **3. Upload Foto Profil & Foto KTP**
         $warga->link_foto = $this->uploadFile($request, 'link_foto', 'avatars', $warga->link_foto);
         $warga->link_foto_ktp = $this->uploadFile($request, 'link_foto_ktp', 'ktp', $warga->link_foto_ktp);
         $warga->save();
 
-        return redirect()->route('data-penduduk.index')->with('success', 'Data penduduk berhasil diubah');
-    }
-
-    // Menghapus data penduduk
-    public function destroy(Warga $warga)
-    {
-        if ($warga->keluarga) {
-            $warga->keluarga->delete();
-        }
-
-        if ($warga->user) {
-            $warga->user->delete();
-        }
-
-        Storage::disk('public')->delete([$warga->link_foto, $warga->link_foto_ktp]);
-        $warga->delete();
-
-        return redirect()->route('data-penduduk.index')->with('success', 'Data penduduk berhasil dihapus');
+        return redirect()->route('data-penduduk.index')->with('success', 'Data penduduk & user berhasil diubah');
     }
 
     // Fungsi untuk upload file

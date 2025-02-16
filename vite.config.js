@@ -9,11 +9,13 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '0.0.0.0',
-        port: 5173,
-        strictPort: true,
+        host: "0.0.0.0",  // Agar bisa diakses dari IP lain
+        port: 5173,       // Port default Vite
+        strictPort: true,  // Pastikan selalu menggunakan port ini
+        cors: true,        // 🛠️ Ini penting untuk mengizinkan CORS!
+        },
         hmr: {
             host: '192.168.100.7',
         },
     },
-});
+);

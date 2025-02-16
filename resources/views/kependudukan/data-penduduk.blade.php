@@ -116,8 +116,6 @@
             </button>
         </div>
 
-        {{-- Import Modal Reusable --}}
-        @include('components.modal', ['modalId' => 'pendudukModal'])
     </div>
 @endsection
 
