@@ -83,14 +83,15 @@
                 </thead>
                 <tbody id="pendudukTable">
                     @foreach ($warga as $index => $w)
-                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                        <tr id="row-{{ $w->id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                             <td class="px-6 py-4">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4">{{ $w->keluarga?->rumah?->no_rumah ?? '-' }}</td>
-                            <td class="px-6 py-4">{{ $w->keluarga?->id ?? '-' }}</td>
-                            <td class="px-6 py-4 text-blue-500 cursor-pointer" onclick="showDetail({{ $w->id }})">
+                            <td class="px-6 py-4 col-no-rumah">{{ $w->keluarga?->rumah?->no_rumah ?? '-' }}</td>
+                            <td class="px-6 py-4 col-keluarga-id">{{ $w->keluarga?->id ?? '-' }}</td>
+                            <td class="px-6 py-4 text-blue-500 cursor-pointer col-nama"
+                                onclick="showDetail({{ $w->id }})">
                                 {{ $w->nama_lengkap }}</td>
-                            <td class="px-6 py-4">{{ $w->jenis_kelamin }}</td>
-                            <td class="px-6 py-4">{{ $w->umur }}</td>
+                            <td class="px-6 py-4 col-jenis-kelamin">{{ $w->jenis_kelamin }}</td>
+                            <td class="px-6 py-4 col-umur">{{ $w->umur }}</td>
                             <td class="px-6 py-4">
                                 <button onclick="showEditForm({{ $w->id }})"
                                     class="bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>

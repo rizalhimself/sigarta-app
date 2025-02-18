@@ -1,12 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\Warga;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PendudukController extends Controller
 {
@@ -35,7 +36,12 @@ class PendudukController extends Controller
     // Menampilkan detail penduduk
     public function show($id)
     {
-        $warga = Warga::with(['keluarga', 'user'])->findOrFail($id);
+        $warga = Warga::with(['keluarga.rumah', 'user'])->findOrFail($id);
+
+        // Pastikan 'umur' dihitung secara otomatis
+        $warga->umur = \Carbon\Carbon::parse($warga->tgl_lahir)->age;
+
+        Log::info("🔍 Data yang dikirim ke frontend:", $warga->toArray());
         return response()->json($warga);
     }
 
@@ -109,48 +115,94 @@ class PendudukController extends Controller
     // Mengupdate data penduduk
     public function update(Request $request, Warga $warga)
     {
-        // Validasi data
-        $request->validate([
-            'username' => 'required|string|max:255|unique:users,username,' . $warga->user_id,
-            'email' => 'required|email|max:255|unique:users,email,' . $warga->user_id,
-            'password' => 'nullable|min:6',
-            'nik' => 'required|string|size:16|unique:warga,nik,' . $warga->id,
-            'nama_lengkap' => 'required|string|max:255',
-            'tempat_lahir' => 'required|string|max:255',
-            'tgl_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:L,P',
-            'golongan_darah' => 'nullable',
-            'agama' => 'required|in:Islam,Kristen,Katolik,Hindu,Budha,Konghucu',
-            'status_perkawinan' => 'required|in:Kawin,Belum Kawin,Cerai Hidup,Cerai Mati',
-            'pekerjaan' => 'required|string|max:255',
-            'kewarganegaraan' => 'required|string|max:255',
-            'no_telfon' => 'required|string|max:15',
-            'link_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'link_foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        Log::info("Request Data: ", $request->all());
+        Log::info("Updating Warga - User ID: {$request->user_id}, Warga ID: {$request->id}");
+        Log::info("Validasi UPDATE: user_id = " . ($request->user_id ?? 'NULL') . ", warga_id = " . ($request->id ?? 'NULL')); // Debugging
 
-        // **1. Update data user**
-        $user = User::findOrFail($warga->user_id);
-        $user->update([
-            'username' => $request->username,
-            'email' => $request->email,
-        ]);
+        try {
+            $request->validate([
+                'username' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('users', 'username')->ignore($request->user_id),
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                    'max:255',
+                    Rule::unique('users', 'email')->ignore($request->user_id),
+                ],
+                'password' => 'nullable|min:6',
+                'role' => 'required|in:admin,warga,ketua,kadus,sekertaris,bendahara1,bendahara2,humas,kerohanian,pembantuUmum',
+                'nik' => [
+                    'required',
+                    'string',
+                    'size:16',
+                    Rule::unique('warga', 'nik')->ignore($request->id),
+                ],
+                'nama_lengkap' => 'required|string|max:255',
+                'tempat_lahir' => 'required|string|max:255',
+                'tgl_lahir' => 'required|date',
+                'jenis_kelamin' => 'required|in:L,P',
+                'golongan_darah' => 'nullable',
+                'agama' => 'required|in:Islam,Kristen,Katolik,Hindu,Budha,Konghucu',
+                'status_perkawinan' => 'required|in:Kawin,Belum Kawin,Cerai Hidup,Cerai Mati',
+                'pekerjaan' => 'required|string|max:255',
+                'kewarganegaraan' => 'required|string|max:255',
+                'no_telfon' => 'required|string|max:15',
+                'link_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'link_foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
 
-        // **Update password hanya jika diisi**
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
+            // **1. Update data user**
+            Log::info("🔍 Mencari Warga dengan ID: " . ($request->id ?? 'NULL'));
+            Log::info("🔍 Mencari User dengan ID: " . ($request->user_id ?? 'NULL'));
+
+            $warga = Warga::findOrFail($request->id);
+            $user = User::findOrFail($warga->user_id);
+            Log::info("🔍 Username sebelum update: " . $user->username);
+            $user->update([
+                'username' => $request->username,
+                'role' => $request->role,
+                'email' => $request->email,
+            ]);
+            Log::info("✅ Username setelah update: " . User::find($request->user_id)->username);
+
+            // **Update password hanya jika diisi**
+            if ($request->filled('password')) {
+                $user->password = bcrypt($request->password);
+            }
+            $user->save();
+
+            // **2. Update data warga (kecuali foto)**
+            $warga->update($request->except(['link_foto', 'link_foto_ktp']));
+
+            // **3. Upload Foto Profil & Foto KTP jika ada file baru**
+            if ($request->hasFile('link_foto')) {
+                $warga->link_foto = $this->uploadFile($request, 'link_foto', 'avatars', $warga->link_foto);
+            }
+
+            if ($request->hasFile('link_foto_ktp')) {
+                $warga->link_foto_ktp = $this->uploadFile($request, 'link_foto_ktp', 'ktp', $warga->link_foto_ktp);
+            }
+
+            $warga->save();
+
+            return response()->json(['success' => true, 'message' => 'Data penduduk & user berhasil diubah']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error("❌ Validasi Gagal: ", $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui data: ' . $e->getMessage()
+            ], 500);
         }
-        $user->save();
-
-        // **2. Update data warga (kecuali foto)**
-        $warga->update($request->except(['link_foto', 'link_foto_ktp']));
-
-        // **3. Upload Foto Profil & Foto KTP**
-        $warga->link_foto = $this->uploadFile($request, 'link_foto', 'avatars', $warga->link_foto);
-        $warga->link_foto_ktp = $this->uploadFile($request, 'link_foto_ktp', 'ktp', $warga->link_foto_ktp);
-        $warga->save();
-
-        return redirect()->route('data-penduduk.index')->with('success', 'Data penduduk & user berhasil diubah');
     }
 
     // Fungsi untuk upload file
@@ -164,6 +216,7 @@ class PendudukController extends Controller
         }
         return $oldFile;
     }
+
 
     // Fungsi search dengan ajax
     public function search(Request $request)

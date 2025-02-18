@@ -31,6 +31,12 @@ document.addEventListener("DOMContentLoaded", function () {
             closeModalButton.addEventListener("click", closeModal);
         }
 
+        // Event listener untuk tombol cancel modal
+        const cancelModalButton = document.getElementById("cancelModalButton");
+        if (cancelModalButton) {
+            cancelModalButton.addEventListener("click", closeModal);
+        }
+
         // Attach event listener untuk input file (validasi gambar)
         document.querySelectorAll("input[type='file']").forEach((input) => {
             input.addEventListener("change", function (event) {
@@ -150,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         <input type="hidden" name="user_id" value="${
                             data.user_id
                         }">
+                        <input type="hidden" name="id" value="${data.id}">
 
                          <!-- Data User -->
                         <div>
@@ -171,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                         <div>
                             <label class="block text-sm font-medium">Role</label>
-                            <select name="golongan_darah" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                            <select name="role" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
                                 <option value="warga" ${
                                     data.user.role === "warga" ? "selected" : ""
                                 }>Warga</option>
@@ -369,10 +376,12 @@ document.addEventListener("DOMContentLoaded", function () {
                             <input type="file" name="link_foto" accept="image/*" 
                                 class="w-full p-2 border rounded focus:ring focus:ring-blue-300" 
                                 onchange="validateImage(event, 'previewFoto')">
-                            <img id="previewFoto" src="/storage/${
+                            <img id="previewFoto" src="${
                                 data.link_foto
-                            }" 
-                                class="mt-2 w-32 h-32 rounded-lg shadow" />
+                                    ? `/storage/${data.link_foto}`
+                                    : "/storage/default-avatar.png"
+                            }"
+                            class="mt-2 w-32 h-32 rounded-lg shadow" />
                         </div>
 
                         <!-- Upload Foto KTP -->
@@ -381,21 +390,114 @@ document.addEventListener("DOMContentLoaded", function () {
                             <input type="file" name="link_foto_ktp" accept="image/*" 
                                 class="w-full p-2 border rounded focus:ring focus:ring-blue-300" 
                                 onchange="validateImage(event, 'previewKTP')">
-                            <img id="previewKTP" src="/storage/${
+                            <img id="previewKTP" src="${
                                 data.link_foto_ktp
+                                    ? `/storage/${data.link_foto_ktp}`
+                                    : "/storage/default-avatar.png"
                             }" 
-                                class="mt-2 w-32 h-32 rounded-lg shadow" />
+                            class="mt-2 w-32 h-32 rounded-lg shadow" />
                         </div>
                     </form>
                     `,
                     `
-                    <button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Batal</button>
-                    <button type="submit" form="pendudukForm" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>
+                    <button id="cancelModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Batal</button>
+                    <button id="submitPendudukForm" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>
                     `
                 );
+
+                setTimeout(() => {
+                    const submitButton =
+                        document.getElementById("submitPendudukForm");
+                    if (submitButton) {
+                        submitButton.addEventListener("click", function () {
+                            let form = document.getElementById("pendudukForm");
+                            let formData = new FormData(form);
+
+                            // Pastikan Laravel membaca ini sebagai PUT request
+                            formData.append("_method", "PUT");
+                            console.log(
+                                "🔍 Data yang dikirim:",
+                                Object.fromEntries(formData.entries())
+                            );
+
+                            fetch("/data-penduduk/" + formData.get("user_id"), {
+                                method: "POST", // Laravel membaca _method=PUT dari FormData
+                                headers: {
+                                    "X-Requested-With": "XMLHttpRequest", // Hindari redirect ke login
+                                    Accept: "application/json", // Pastikan respons adalah JSON
+                                },
+                                body: formData,
+                                credentials: "same-origin", // Pastikan CSRF token dikirim dari cookie
+                            })
+                                .then((response) => {
+                                    if (response.redirected) {
+                                        throw new Error(
+                                            "❌ Request dialihkan ke: " +
+                                                response.url
+                                        );
+                                    }
+                                    return response.json();
+                                })
+                                .then((result) => {
+                                    if (result.success) {
+                                        alert("✅ Data berhasil diperbarui!");
+                                        // ✅ Ambil data terbaru dari database dan update tabel
+                                        updateTableRow(formData.get("id"));
+                                        // ✅ Tutup modal setelah update berhasil
+                                        document
+                                            .getElementById("closeModalButton")
+                                            .click();
+                                    } else {
+                                        alert(
+                                            "❌ Gagal menyimpan perubahan! " +
+                                                (result.message ||
+                                                    "Cek log server.")
+                                        );
+                                    }
+                                })
+                                .catch((error) =>
+                                    console.error("❌ Error:", error)
+                                );
+                        });
+                    } else {
+                        console.error(
+                            "❌ Tombol submit tidak ditemukan di dalam modal!"
+                        );
+                    }
+                }, 100); // Tambahkan delay agar modal sempat dimuat
             })
             .catch((error) => console.error("❌ Error Fetching Data:", error));
     };
+
+    // ✅ Function untuk mengambil data terbaru dari database dan memperbarui tabel
+    function updateTableRow(id) {
+        fetch(`/data-penduduk/${id}`) // Ambil data terbaru dari server
+            .then((response) => response.json())
+            .then((data) => {
+                const row = document.querySelector(`#row-${id}`);
+                if (row) {
+                    row.querySelector(".col-nama").innerText =
+                        data.nama_lengkap;
+                    row.querySelector(".col-jenis-kelamin").innerText =
+                        data.jenis_kelamin;
+                    row.querySelector(".col-umur").innerText = data.umur;
+                    row.querySelector(".col-no-rumah").innerText =
+                        data.keluarga?.rumah?.no_rumah || "-";
+                    row.querySelector(".col-keluarga-id").innerText =
+                        data.keluarga?.id || "-";
+
+                    // ✅ Tambahkan efek highlight agar perubahan terlihat
+                    row.classList.add("bg-green-100");
+                    setTimeout(
+                        () => row.classList.remove("bg-green-100"),
+                        2000
+                    );
+                }
+            })
+            .catch((error) =>
+                console.error("❌ Error mengambil data terbaru:", error)
+            );
+    }
 
     // Function untuk pencarian penduduk dengan debounce dan ajax
     let searchTimeout;
