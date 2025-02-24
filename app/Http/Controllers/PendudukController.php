@@ -171,7 +171,7 @@ class PendudukController extends Controller
 
             // **Update password hanya jika diisi**
             if ($request->filled('password')) {
-                $user->password = bcrypt($request->password);
+                $user->password = Hash::make($request->password);
             }
             $user->save();
 
@@ -230,7 +230,7 @@ class PendudukController extends Controller
 
             \Log::info("🔎 Search Query: ", ['query' => $search]); // Logging Debug
 
-            $warga = Warga::with(['keluarga', 'user'])
+            $warga = Warga::with(['keluarga.rumah', 'user'])
                 ->where('nama_lengkap', 'like', "%{$search}%")
                 ->orWhere('nik', 'like', "%{$search}%")
                 ->orWhere('no_telfon', 'like', "%{$search}%")
@@ -240,6 +240,11 @@ class PendudukController extends Controller
                 })
                 ->get();
 
+            // ✅ Tambahkan umur secara manual ke setiap objek warga
+            $warga->each(function ($w) {
+                $w->umur = \Carbon\Carbon::parse($w->tgl_lahir)->age;
+            });
+            
             return response()->json($warga, 200);
 
         } catch (\Exception $e) {
