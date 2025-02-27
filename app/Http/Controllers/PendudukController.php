@@ -45,71 +45,103 @@ class PendudukController extends Controller
         return response()->json($warga);
     }
 
-    // Menampilkan form tambah penduduk
-    public function create()
-    {
-        return view('kependudukan.tambah-penduduk');
-    }
 
     // Menyimpan data penduduk baru beserta akun user
     public function store(Request $request)
     {
-        $request->validate([
-            // Validasi User
-            'username' => 'required|string|unique:users,username|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:warga,ketua,kadus,sekertaris,bendahara1,bendahara2,humas,kerohanian,pembantuUmum',
+        try {
+            $request->validate([
+                // Validasi User
+                'username' => 'required|string|unique:users,username|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|string|min:6|confirmed',
+                'role' => 'required|in:warga,ketua,kadus,sekertaris,bendahara1,bendahara2,humas,kerohanian,pembantuUmum',
 
-            // Validasi Warga
-            'nik' => 'required|string|size:16|unique:warga,nik',
-            'nama_lengkap' => 'required|string|max:255',
-            'tempat_lahir' => 'required|string|max:255',
-            'tgl_lahir' => 'required|date',
-            'jenis_kelamin' => 'required|in:L,P',
-            'golongan_darah' => 'nullable',
-            'agama' => 'required|in:Islam,Kristen,Katolik,Hindu,Budha,Konghucu',
-            'status_perkawinan' => 'required|in:Kawin,Belum Kawin,Cerai Hidup,Cerai Mati',
-            'pekerjaan' => 'required|string|max:255',
-            'kewarganegaraan' => 'required|string|max:255',
-            'no_telfon' => 'required|string|max:15',
-            'link_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'link_foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+                // Validasi Warga
+                'nik' => 'required|string|size:16|unique:warga,nik',
+                'nama_lengkap' => 'required|string|max:255',
+                'tempat_lahir' => 'required|string|max:255',
+                'tgl_lahir' => 'required|date',
+                'jenis_kelamin' => 'required|in:L,P',
+                'golongan_darah' => 'nullable',
+                'agama' => 'required|in:Islam,Kristen,Katolik,Hindu,Budha,Konghucu',
+                'status_perkawinan' => 'required|in:Kawin,Belum Kawin,Cerai Hidup,Cerai Mati',
+                'pekerjaan' => 'required|string|max:255',
+                'kewarganegaraan' => 'required|string|max:255',
+                'no_telfon' => 'required|string|max:15',
+                'link_foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+                'link_foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            ]);
 
-        // Simpan User
-        $user = User::create([
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+            // Simpan User
+            $user = User::create([
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role' => $request->role,
+            ]);
 
-        // Simpan Warga
-        $warga = Warga::create([
-            'user_id' => $user->id,
-            'nik' => $request->nik,
-            'nama_lengkap' => $request->nama_lengkap,
-            'tempat_lahir' => $request->tempat_lahir,
-            'tgl_lahir' => $request->tgl_lahir,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'golongan_darah' => $request->golongan_darah,
-            'agama' => $request->agama,
-            'status_perkawinan' => $request->status_perkawinan,
-            'pekerjaan' => $request->pekerjaan,
-            'kewarganegaraan' => $request->kewarganegaraan,
-            'no_telfon' => $request->no_telfon,
-            'link_foto' => $this->uploadFile($request, 'link_foto', 'avatars'),
-            'link_foto_ktp' => $this->uploadFile($request, 'link_foto_ktp', 'ktp'),
-        ]);
+            // Simpan Warga
+            Warga::create([
+                'user_id' => $user->id,
+                'nik' => $request->nik,
+                'nama_lengkap' => $request->nama_lengkap,
+                'tempat_lahir' => $request->tempat_lahir,
+                'tgl_lahir' => $request->tgl_lahir,
+                'jenis_kelamin' => $request->jenis_kelamin,
+                'golongan_darah' => $request->golongan_darah,
+                'agama' => $request->agama,
+                'status_perkawinan' => $request->status_perkawinan,
+                'pekerjaan' => $request->pekerjaan,
+                'kewarganegaraan' => $request->kewarganegaraan,
+                'no_telfon' => $request->no_telfon,
+                'link_foto' => $this->uploadFile($request, 'link_foto', 'avatars'),
+                'link_foto_ktp' => $this->uploadFile($request, 'link_foto_ktp', 'ktp'),
+            ]);
 
-        return redirect()->route('data-penduduk.index')->with('success', 'Data penduduk berhasil ditambahkan');
+            return response()->json(['success' => true, 'message' => 'Data penduduk berhasil ditambahkan']);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error("❌ Validasi Gagal: ", $e->errors());
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Menampilkan form edit data penduduk
-    public function edit(Warga $warga)
-    {
-        return view('kependudukan.edit-penduduk', compact('warga'));
+    // Menghapus data penduduk
+    public function destroy($id) {
+        try {
+            $warga = Warga::findOrFail($id);
+            $user = User::findOrFail($warga->user_id);
+
+            // Hapus foto profil & KTP
+            if ($warga->link_foto && Storage::disk('public')->exists($warga->link_foto)) {
+                Storage::disk('public')->delete($warga->link_foto);
+            }
+
+            if ($warga->link_foto_ktp && Storage::disk('public')->exists($warga->link_foto_ktp)) {
+                Storage::disk('public')->delete($warga->link_foto_ktp);
+            }
+
+            // Hapus user & warga
+            $user->delete();
+            $warga->delete();
+
+            return response()->json(['success' => true, 'message' => 'Data penduduk berhasil dihapus']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     // Mengupdate data penduduk
@@ -244,7 +276,7 @@ class PendudukController extends Controller
             $warga->each(function ($w) {
                 $w->umur = \Carbon\Carbon::parse($w->tgl_lahir)->age;
             });
-            
+
             return response()->json($warga, 200);
 
         } catch (\Exception $e) {

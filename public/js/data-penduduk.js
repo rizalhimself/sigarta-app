@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", function () {
             await showDetail(e.target.dataset.id);
         } else if (e.target.matches(".deletePendudukBtn")) {
             deletePenduduk(e.target.dataset.id);
+        } else if (e.target.matches(".addPendudukBtn")) {
+            showAddForm();
         }
     });
 
@@ -50,6 +52,263 @@ document.addEventListener("DOMContentLoaded", function () {
         }, 500);
     });
 });
+
+// fungsi generate modal untuk menampilkan add/edit penduduk
+window.generatePendudukForm = (data = null) => {
+    const csrfToken = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute("content");
+
+    const isEdit = data !== null;
+
+    // tentukan action url dan method form berdasarkan keggunaan edir/tambah
+    const actionUrl = isEdit ? `/data-penduduk/${data.id}` : `/data-penduduk/store`;
+    const method = isEdit ? "PUT" : "POST";
+
+    // generate input tersembunyi
+    const hiddenInputs = isEdit
+        ? `<input type="hidden" name="_method" value="PUT">
+        <input type="hidden" name="_token" value="${csrfToken}">
+        <input type="hidden" name="id" value="${data.id}">
+        <input type="hidden" name="user_id" value="${data.user_id}">
+        `
+        : `<input type="hidden" name="_token" value="${csrfToken}">`;
+
+    // tentukan nilai field untuh edit atau tambah
+    const username = isEdit && data.user ? data.user.username : ""; // Menghindari error jika data.user tidak ada
+    const email = isEdit && data.user ? data.user.email : "";
+    const role = isEdit && data.user ? data.user.role : "";
+    const namaLengkap = isEdit ? data.nama_lengkap : "";
+    const nik = isEdit ? data.nik : "";
+    const tempatLahir = isEdit ? data.tempat_lahir : "";
+    const tglLahir = isEdit ? data.tgl_lahir : "";
+    const jenisKelamin = isEdit ? data.jenis_kelamin : "";
+    const golonganDarah = isEdit ? data.golongan_darah : "";
+    const agama = isEdit ? data.agama : "";
+    const statusPerkawinan = isEdit ? data.status_perkawinan : "";
+    const pekerjaan = isEdit ? data.pekerjaan : "";
+    const kewarganegaraan = isEdit ? data.kewarganegaraan : "";
+    const noTelfon = isEdit ? data.no_telfon : "";
+    const linkFoto = isEdit ? data.link_foto : "";
+    const linkFotoKTP = isEdit ? data.link_foto_ktp : "";
+
+    return `
+    <form id="pendudukForm" action="${actionUrl}" method="${method}" enctype="multipart/form-data">
+            ${hiddenInputs}
+                <!-- Data User -->
+                <div>
+                    <label class="block text-sm font-medium">Username</label>
+                    <input type="text" name="username" value="${username}" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Email</label>
+                    <input type="email" name="email" value="${email}" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Password (Kosongkan jika tidak ingin mengubah)</label>
+                    <input type="password" name="password" id="passwordInput" value="••••••" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                    <span id="passwordError" class="text-red-500 text-sm hidden">Password tidak boleh kosong!</span>
+                    <span id="passwordMatchError" class="text-red-500 text-sm hidden">Password tidak cocok!</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Konfirmasi Password</label>
+                    <input type="password" name="password_confirmation" value="••••••" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                    <span id="passwordConfirmationError" class="text-red-500 text-sm hidden">Konfirmasi Password tidak boleh kosong!</span>
+                    <span id="passwordConfirmationMatchError" class="text-red-500 text-sm hidden">Password tidak cocok!</span>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">Role</label>
+                    <select name="role" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                        <option value="" ${
+                            role === "" ? "selected" : ""
+                        }>Pilih Role</option>
+                        <option value="warga" ${
+                            role === "warga" ? "selected" : ""
+                        }>Warga</option>
+                        <option value="ketua" ${
+                            role === "ketua" ? "selected" : ""
+                        }>Ketua</option>
+                        <option value="kadus" ${
+                            role === "kadus" ? "selected" : ""
+                        }>Kadus</option>
+                        <option value="sekertaris" ${
+                            role === "sekertaris" ? "selected" : ""
+                        }>Sekertaris</option>
+                        <option value="bendahara1" ${
+                            role === "bendahara" ? "selected" : ""
+                        }>Bendahara 1</option>
+                        <option value="bendahara2" ${
+                            role === "bendahara2" ? "selected" : ""
+                        }>Bendahara 2</option>
+                        <option value="humas" ${
+                            role === "humas" ? "selected" : ""
+                        }>Humas</option>
+                        <option value="kerohanian" ${
+                            role === "kerohanian" ? "selected" : ""
+                        }>Kerohanian</option>
+                        <option value="pembantuUmum" ${
+                            role === "pembantuUmum" ? "selected" : ""
+                        }>Pembantu Umum</option>
+                        <option value="admin" ${
+                            role === "admin" ? "selected" : ""
+                        }>Admin</option>
+                    </select>
+                </div>
+                <!-- Nama Lengkap -->
+                <div>
+                    <label class="block text-sm font-medium">Nama Lengkap</label>
+                    <input id="namaLengkapInput" type="text" name="nama_lengkap" value="${namaLengkap}" class="w-full p-2
+                    border rounded focus:ring focus:ring-blue-300" required autofocus>
+                </div>
+                <!-- NIK -->
+                <div>
+                    <label class="block text-sm font-medium">NIK</label>
+                    <input type="text" name="nik" value="${nik}" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" pattern="\\d{16}" title="Harus 16 digit" required>
+                </div>
+                <!-- Tempat & Tanggal Lahir -->
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium">Tempat Lahir</label>
+                        <input type="text" name="tempat_lahir" value="${tempatLahir}" class="w-full p-2
+                        border rounded focus:ring focus:ring-blue-300" required>
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium">Tanggal Lahir</label>
+                        <input type="date" name="tgl_lahir" value="${tglLahir}" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                    </div>
+                </div>
+                <!-- Jenis Kelamin -->
+                <div>
+                    <label class="block text-sm font-medium">Jenis Kelamin</label>
+                    <select name="jenis_kelamin" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                        <option value="" ${
+                            jenisKelamin === "" ? "selected" : ""
+                        }>Pilih Jenis Kelamin</option>
+                        <option value="L" ${
+                            jenisKelamin === "L" ? "selected" : ""
+                        }>Laki-laki</option>
+                        <option value="P" ${
+                            jenisKelamin === "P" ? "selected" : ""
+                        }>Perempuan</option>
+                    </select>
+                </div>
+                <!-- Golongan Darah -->
+                <div>
+                    <label class="block text-sm font-medium">Golongan Darah</label>
+                    <select name="golongan_darah" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
+                        <option value="" ${
+                            golonganDarah === "" ? "selected" : ""
+                        }>Pilih Golongan Darah</option>
+                        <option value="A" ${
+                            golonganDarah === "A" ? "selected" : ""
+                        }>A</option>
+                        <option value="B" ${
+                            golonganDarah === "B" ? "selected" : ""
+                        }>B</option>
+                        <option value="AB" ${
+                            golonganDarah === "AB" ? "selected" : ""
+                        }>AB</option>
+                        <option value="O" ${
+                            golonganDarah === "O" ? "selected" : ""
+                        }>O</option>
+                        <option value="-" ${
+                            golonganDarah === "-" ? "selected" : ""
+                        }>Tidak Diketahui</option>
+                    </select>
+                </div>
+                <!-- Agama -->
+                <div>
+                    <label class="block text-sm font-medium">Agama</label>
+                    <select name="agama" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                        <option value="" ${
+                            agama === "" ? "selected" : ""  
+                        }>Pilih Agama</option>
+                        <option value="Islam" ${
+                            agama === "Islam" ? "selected" : ""
+                        }>Islam</option>
+                        <option value="Kristen" ${
+                            agama === "Kristen" ? "selected" : ""
+                        }>Kristen</option>
+                        <option value="Katolik" ${
+                            agama === "Katolik" ? "selected" : ""
+                        }>Katolik</option>
+                        <option value="Hindu" ${
+                            agama === "Hindu" ? "selected" : ""
+                        }>Hindu</option>
+                        <option value="Budha" ${
+                            agama === "Budha" ? "selected" : ""
+                        }>Budha</option>
+                        <option value="Konghucu" ${
+                            agama === "Konghucu" ? "selected" : ""
+                        }>Konghucu</option>
+                    </select>
+                </div>
+                <!-- Status Perkawinan -->
+                <div>
+                    <label class="block text-sm font-medium">Status Perkawinan</label>
+                    <select name="status_perkawinan" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
+                        <option value="" ${
+                            statusPerkawinan === "" ? "selected" : ""
+                        }>Pilih Status Perkawinan</option>
+                        <option value="Kawin" ${
+                            statusPerkawinan === "Kawin" ? "selected" : ""
+                        }>Kawin</option>
+                        <option value="Belum Kawin" ${
+                            statusPerkawinan === "Belum Kawin" ? "selected" : ""
+                        }>Belum Kawin</option>
+                        <option value="Cerai Hidup" ${
+                            statusPerkawinan === "Cerai Hidup" ? "selected" : ""
+                        }>Cerai Hidup</option>
+                        <option value="Cerai Mati" ${
+                            statusPerkawinan === "Cerai Mati" ? "selected" : ""
+                        }>Cerai Mati</option>
+                    </select>
+                </div>
+                <!-- Pekerjaan -->
+                <div>
+                    <label class="block text-sm font-medium">Pekerjaan</label>
+                    <input type="text" name="pekerjaan" value="${
+                        pekerjaan ?? ""
+                    }" class="w-full p-2
+                    <border rounded focus:ring focus:ring-blue-300" maxlength="255" required>
+                </div>
+                <!-- Kewarganegaraan -->
+                <div>
+                    <label class="block text-sm font-medium">Kewarganegaraan</label>
+                    <input type="text" name="kewarganegaraan" value="${
+                        kewarganegaraan ?? ""
+                    }" class="w-full p-2
+                    border rounded focus:ring focus:ring-blue-300" maxlength="255" required>
+                </div>
+                <!-- No Telepon -->
+                <div>
+                    <label class="block text-sm font-medium">No Telepon</label>
+                    <input type="text" name="no_telfon" value="${noTelfon}" class="w-full p-2
+                    border rounded focus:ring focus:ring-blue-300" pattern="\\d+" required>
+                </div>
+                <!-- Upload Foto Profil -->
+                <div>
+                    <label class="block text-sm font-medium">Upload Foto Profil</label>
+                    <input type="file" name="link_foto" accept="image/*" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" onchange="validateImage(event, 'previewFoto')">
+                    <img id="previewFoto" src="${
+                        linkFoto
+                            ? `/storage/${linkFoto}`
+                            : "/storage/default-avatar.png"
+                    }" class="mt-2 w-32 h-32 rounded-lg shadow" />    
+                </div>
+                <!-- Upload Foto KTP -->
+                <div>
+                    <label class="block text-sm font-medium">Upload Foto KTP</label>
+                    <input type="file" name="link_foto_ktp" accept="image/*" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" onchange="validateImage(event, 'previewKTP')">    
+                    <img id="previewKTP" src="${
+                        linkFotoKTP
+                            ? `/storage/${linkFotoKTP}`
+                            : "/storage/default-avatar.png"
+                    }" class="mt-2 w-32 h-32 rounded-lg shadow" />
+                </div>
+            </form>
+    `;
+};
 
 // fetch data detail penduduk
 window.showDetail = async (id) => {
@@ -92,253 +351,66 @@ window.showDetail = async (id) => {
     }
 };
 
-// fetch data penduduk untuk form edit
-window.showEditForm = async (id) => {
+// tampilkan form tambah penduduk
+window.showAddForm = () => {
     try {
-        const response = await fetch(`/data-penduduk/${id}`);
-        const data = await response.json();
-        const csrfToken = document
-            .querySelector('meta[name="csrf-token"]')
-            .getAttribute("content");
-
         showModal(
-            "Edit Penduduk - " + data.nama_lengkap,
-            `<form id="pendudukForm" action="/data-penduduk/${
-                data.id
-            }" method="POST" enctype="multipart/form-data">
-                <input type="hidden" name="_token" value="${csrfToken}">
-                <input type="hidden" name="_method" value="PUT">
-                <input type="hidden" name="user_id" value="${data.user_id}">
-                <input type="hidden" name="id" value="${data.id}">
-
-                <!-- Data User -->
-                <div>
-                    <label class="block text-sm font-medium">Username</label>
-                    <input type="text" name="username" value="${
-                        data.user ? data.user.username : ""
-                    }" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium">Email</label>
-                    <input type="email" name="email" value="${
-                        data.user ? data.user.email : ""
-                    }" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium">Password (Kosongkan jika tidak ingin mengubah)</label>
-                    <input type="password" name="password" id="passwordInput" value="••••••" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium">Role</label>
-                    <select name="role" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
-                        <option value="warga" ${
-                            data.user.role === "warga" ? "selected" : ""
-                        }>Warga</option>
-                        <option value="ketua" ${
-                            data.user.role === "ketua" ? "selected" : ""
-                        }>Ketua</option>
-                        <option value="kadus" ${
-                            data.user.role === "kadus" ? "selected" : ""
-                        }>Kadus</option>
-                        <option value="sekertaris" ${
-                            data.user.role === "sekertaris" ? "selected" : ""
-                        }>Sekertaris</option>
-                        <option value="bendahara1" ${
-                            data.user.role === "bendahara" ? "selected" : ""
-                        }>Bendahara 1</option>
-                        <option value="bendahara2" ${
-                            data.user.role === "bendahara2" ? "selected" : ""
-                        }>Bendahara 2</option>
-                        <option value="humas" ${
-                            data.user.role === "humas" ? "selected" : ""
-                        }>Humas</option>
-                        <option value="kerohanian" ${
-                            data.user.role === "kerohanian" ? "selected" : ""
-                        }>Kerohanian</option>
-                        <option value="pembantuUmum" ${
-                            data.user.role === "pembantuUmum" ? "selected" : ""
-                        }>Pembantu Umum</option>
-                        <option value="admin" ${
-                            data.user.role === "admin" ? "selected" : ""
-                        }>Admin</option>
-                    </select>
-                </div>
-                <!-- Nama Lengkap -->
-                <div>
-                    <label class="block text-sm font-medium">Nama Lengkap</label>
-                    <input type="text" name="nama_lengkap" value="${
-                        data.nama_lengkap
-                    }" class="w-full p-2
-                    border rounded focus:ring focus:ring-blue-300" required autofocus>
-                </div>
-                <!-- NIK -->
-                <div>
-                    <label class="block text-sm font-medium">NIK</label>
-                    <input type="text" name="nik" value="${
-                        data.nik
-                    }" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" pattern="\\d{16}" title="Harus 16 digit" required>
-                </div>
-                <!-- Tempat & Tanggal Lahir -->
-                <div class="flex gap-4">
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium">Tempat Lahir</label>
-                        <input type="text" name="tempat_lahir" value="${
-                            data.tempat_lahir
-                        }" class="w-full p-2
-                        border rounded focus:ring focus:ring-blue-300" required>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium">Tanggal Lahir</label>
-                        <input type="date" name="tgl_lahir" value="${
-                            data.tgl_lahir
-                        }" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                    </div>
-                </div>
-                <!-- Jenis Kelamin -->
-                <div>
-                    <label class="block text-sm font-medium">Jenis Kelamin</label>
-                    <select name="jenis_kelamin" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
-                        <option value="L" ${
-                            data.jenis_kelamin === "L" ? "selected" : ""
-                        }>Laki-laki</option>
-                        <option value="P" ${
-                            data.jenis_kelamin === "P" ? "selected" : ""
-                        }>Perempuan</option>
-                    </select>
-                </div>
-                <!-- Golongan Darah -->
-                <div>
-                    <label class="block text-sm font-medium">Golongan Darah</label>
-                    <select name="golongan_darah" class="w-full p-2 border rounded focus:ring focus:ring-blue-300">
-                        <option value="A" ${
-                            data.golongan_darah === "A" ? "selected" : ""
-                        }>A</option>
-                        <option value="B" ${
-                            data.golongan_darah === "B" ? "selected" : ""
-                        }>B</option>
-                        <option value="AB" ${
-                            data.golongan_darah === "AB" ? "selected" : ""
-                        }>AB</option>
-                        <option value="O" ${
-                            data.golongan_darah === "O" ? "selected" : ""
-                        }>O</option>
-                        <option value="-" ${
-                            data.golongan_darah === "-" ? "selected" : ""
-                        }>Tidak Diketahui</option>
-                    </select>
-                </div>
-                <!-- Agama -->
-                <div>
-                    <label class="block text-sm font-medium">Agama</label>
-                    <select name="agama" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                        <option value="Islam" ${
-                            data.agama === "Islam" ? "selected" : ""
-                        }>Islam</option>
-                        <option value="Kristen" ${
-                            data.agama === "Kristen" ? "selected" : ""
-                        }>Kristen</option>
-                        <option value="Katolik" ${
-                            data.agama === "Katolik" ? "selected" : ""
-                        }>Katolik</option>
-                        <option value="Hindu" ${
-                            data.agama === "Hindu" ? "selected" : ""
-                        }>Hindu</option>
-                        <option value="Budha" ${
-                            data.agama === "Budha" ? "selected" : ""
-                        }>Budha</option>
-                        <option value="Konghucu" ${
-                            data.agama === "Konghucu" ? "selected" : ""
-                        }>Konghucu</option>
-                    </select>
-                </div>
-                <!-- Status Perkawinan -->
-                <div>
-                    <label class="block text-sm font-medium">Status Perkawinan</label>
-                    <select name="status_perkawinan" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
-                        <option value="Kawin" ${
-                            data.status_perkawinan === "Kawin" ? "selected" : ""
-                        }>Kawin</option>
-                        <option value="Belum Kawin" ${
-                            data.status_perkawinan === "Belum Kawin"
-                                ? "selected"
-                                : ""
-                        }>Belum Kawin</option>
-                        <option value="Cerai Hidup" ${
-                            data.status_perkawinan === "Cerai Hidup"
-                                ? "selected"
-                                : ""
-                        }>Cerai Hidup</option>
-                        <option value="Cerai Mati" ${
-                            data.status_perkawinan === "Cerai Mati"
-                                ? "selected"
-                                : ""
-                        }>Cerai Mati</option>
-                    </select>
-                </div>
-                <!-- Pekerjaan -->
-                <div>
-                    <label class="block text-sm font-medium">Pekerjaan</label>
-                    <input type="text" name="pekerjaan" value="${
-                        data.pekerjaan ?? ""
-                    }" class="w-full p-2
-                    <border rounded focus:ring focus:ring-blue-300" maxlength="255" required>
-                </div>
-                <!-- Kewarganegaraan -->
-                <div>
-                    <label class="block text-sm font-medium">Kewarganegaraan</label>
-                    <input type="text" name="kewarganegaraan" value="${
-                        data.kewarganegaraan ?? ""
-                    }" class="w-full p-2
-                    border rounded focus:ring focus:ring-blue-300" maxlength="255" required>
-                </div>
-                <!-- No Telepon -->
-                <div>
-                    <label class="block text-sm font-medium">No Telepon</label>
-                    <input type="text" name="no_telfon" value="${
-                        data.no_telfon
-                    }" class="w-full p-2
-                    border rounded focus:ring focus:ring-blue-300" pattern="\\d+" required>
-                </div>
-                <!-- Upload Foto Profil -->
-                <div>
-                    <label class="block text-sm font-medium">Upload Foto Profil</label>
-                    <input type="file" name="link_foto" accept="image/*" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" onchange="validateImage(event, 'previewFoto')">
-                    <img id="previewFoto" src="${
-                        data.link_foto
-                            ? `/storage/${data.link_foto}`
-                            : "/storage/default-avatar.png"
-                    }" class="mt-2 w-32 h-32 rounded-lg shadow" />    
-                </div>
-                <!-- Upload Foto KTP -->
-                <div>
-                    <label class="block text-sm font-medium">Upload Foto KTP</label>
-                    <input type="file" name="link_foto_ktp" accept="image/*" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" onchange="validateImage(event, 'previewKTP')">    
-                    <img id="previewKTP" src="${
-                        data.link_foto_ktp
-                            ? `/storage/${data.link_foto_ktp}`
-                            : "/storage/default-avatar.png"
-                    }" class="mt-2 w-32 h-32 rounded-lg shadow" />
-                </div>
-            </form>`,
+            "Tambah Penduduk",
+            generatePendudukForm(),
             `<button id="cancelModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Batal</button>
             <button id="submitPendudukForm" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>`
         );
+
+        document
+            .getElementById("namaLengkapInput")
+            .addEventListener("input", (e) => {
+                const namaPenduduk = e.target.value;
+                const modalTitle = document.getElementById("modalTitle");
+                modalTitle.textContent = namaPenduduk
+                    ? "Tambah Penduduk - " + namaPenduduk
+                    : "Tambah Penduduk";
+            });
+
+        const passwordInput = document.querySelector('input[name="password"]');
+        const passwordConfirmationInput = document.querySelector('input[name="password_confirmation"]');
+        const passwordError = document.getElementById("passwordError");
+        const passwordMatchError = document.getElementById("passwordMatchError");
+        const passwordConfirmationError = document.getElementById("passwordConfirmationError");
+        const passwordConfirmationMatchError = document.getElementById("passwordConfirmationMatchError");
+        passwordInput.addEventListener("input", validatePasswordConfirmation);
+        passwordConfirmationInput.addEventListener("input", validatePasswordConfirmation);
+        function validatePasswordConfirmation() {
+            const password = passwordInput.value;
+            const passwordConfirmation = passwordConfirmationInput.value;
+
+            if (password === "" || passwordConfirmation === "") {
+                passwordError.style.display = "block";
+                passwordMatchError.style.display = "none";
+                passwordConfirmationError.style.display = "block";
+                passwordConfirmationMatchError.style.display = "none";
+
+            } else if (password !== passwordConfirmation) {
+                passwordError.style.display = "none";
+                passwordMatchError.style.display = "block";
+                passwordConfirmationError.style.display = "none";
+                passwordConfirmationMatchError.style.display = "block";
+            } else {
+                passwordError.style.display = "none";
+                passwordMatchError.style.display = "none";
+                passwordConfirmationError.style.display = "none";
+                passwordConfirmationMatchError.style.display = "none";
+            }
+        }   
     } catch (error) {
-        console.error("❌ Error Fetching Data:", error);
-        showModal(
-            "Error",
-            "Terjadi kesalahan saat mengambil data!",
-            '<button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Tutup</button>'
-        );
+        console.error("❌ Error menampilkan form tambah penduduk", error);
     }
 };
 
-// fungsi untuk submit form edit penduduk
+// fungsi untuk submit form tambah/edit penduduk
 document.addEventListener("click", async (e) => {
     if (e.target.matches("#submitPendudukForm")) {
         const form = document.getElementById("pendudukForm");
         const formData = new FormData(form);
-        formData.append("_method", "PUT");
 
         // double check password untuk meghindari terisi oleh default value dari frontend
         const passwordValue = document.getElementById("passwordInput").value;
@@ -348,9 +420,21 @@ document.addEventListener("click", async (e) => {
             formData.delete("password");
         }
 
+        // Tentukan method sesuai dengan apakah ini form tambah atau edit
+        const method = form.method; // Ambil method dari form (POST atau PUT)
+        if (method === "POST") {
+            // Untuk tambah data (POST)
+            console.log("Form data yang dikirim untuk tambah:", formData);
+        } else if (method === "PUT") {
+            // Untuk edit data (PUT)
+            formData.append("_method", "PUT");  // Pastikan ini menggunakan PUT saat edit
+            console.log("Form data yang dikirim untuk edit:", formData);
+        }
+
+        //proses data sesuai dengan method form
         try {
             const response = await fetch(form.action, {
-                method: "POST",
+                method: method, //method yang diatur di form
                 headers: {
                     "X-Requested-With": "XMLHttpRequest",
                     Accept: "application/json",
@@ -360,7 +444,8 @@ document.addEventListener("click", async (e) => {
 
             const result = await response.json();
             if (result.success) {
-                alert("Data Penduduk berhasil diubah!");
+                alert(result.message);
+                fetchDataTable("pendudukTable");
                 updateTableRow(formData.get("id"));
                 closeModal();
             } else {
@@ -374,6 +459,28 @@ document.addEventListener("click", async (e) => {
         }
     }
 });
+
+// fetch data penduduk untuk form edit
+window.showEditForm = async (id) => {
+    try {
+        const response = await fetch(`/data-penduduk/${id}`);
+        const data = await response.json();
+        showModal(
+            "Edit Penduduk - " + data.nama_lengkap,
+            generatePendudukForm(data),
+            `<button id="cancelModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Batal</button>
+            <button id="submitPendudukForm" class="bg-blue-500 text-white px-4 py-2 rounded">Simpan</button>`
+        );
+    } catch (error) {
+        console.error("❌ Error Fetching Data:", error);
+        showModal(
+            "Error",
+            "Terjadi kesalahan saat mengambil data!",
+            '<button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Tutup</button>'
+        );
+    }
+};
+
 
 // fungsi untuk mengupdate tampilan tabel setelah edit
 const updateTableRow = async (id) => {
@@ -422,7 +529,7 @@ const deletePenduduk = async (id) => {
         const result = await response.json();
         if (result.success) {
             alert("Data Penduduk berhasil dihapus!");
-            document.getElementById("row-${id}").remove();
+            document.getElementById(`row-${id}`).remove();
         } else {
             alert(
                 "Data Penduduk gagal dihapus!" +

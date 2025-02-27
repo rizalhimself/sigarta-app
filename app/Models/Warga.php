@@ -76,6 +76,7 @@ class Warga extends Model
         'kewarganegaraan',
         'no_telfon',
         'link_foto',
+        'link_foto_ktp',
     ];
 
     // relasi ke tabel user

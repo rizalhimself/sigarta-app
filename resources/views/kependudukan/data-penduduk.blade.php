@@ -110,8 +110,8 @@
 
         {{-- Tombol Tambah Penduduk --}}
         <div class="flex justify-center md:justify-start mt-4">
-            <button onclick="showAddPendudukModal()"
-                class="bg-green-500 text-white px-4 py-2 rounded w-full md:w-auto text-center">
+            <button 
+                class="addPendudukBtn bg-green-500 text-white px-4 py-2 rounded w-full md:w-auto text-center">
                 Tambah Penduduk
             </button>
         </div>
