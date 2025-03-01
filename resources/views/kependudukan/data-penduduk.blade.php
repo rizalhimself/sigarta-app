@@ -81,31 +81,14 @@
                     </tr>
                 </thead>
                 <tbody id="pendudukTable">
-                    @foreach ($warga as $index => $w)
-                        <tr id="row-{{ $w->id }}" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <td class="px-6 py-4 col-no">{{ $index + 1 }}</td>
-                            <td class="px-6 py-4 col-no-rumah">{{ $w->keluarga?->rumah?->no_rumah ?? '-' }}</td>
-                            <td class="px-6 py-4 col-keluarga-id">{{ $w->keluarga?->id ?? '-' }}</td>
-                            <td data-id="{{ $w->id }}"
-                                class="detailPendudukBtn px-6 py-4 text-blue-500 cursor-pointer col-nama">
-                                {{ $w->nama_lengkap }}</td>
-                            <td class="px-6 py-4 col-jenis-kelamin">{{ $w->jenis_kelamin }}</td>
-                            <td class="px-6 py-4 col-umur">{{ $w->umur }}</td>
-                            <td class="px-6 py-4">
-                                <button data-id="{{ $w->id }}"
-                                    class="editPendudukBtn bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
-                                <button data-id="{{ $w->id }}"
-                                    class="bg-red-500 text-white px-2 py-1 rounded deletePendudukBtn">Hapus</button>
-                            </td>
-                        </tr>
-                    @endforeach
+                    {{-- Data Penduduk akan diisi oleh Javascript --}}
                 </tbody>
             </table>
         </div>
 
         {{-- Pagination --}}
-        <div class="mt-4">
-            {{ $warga->links() }}
+        <div class="pagination-container" id="pendudukTable-pagination">
+            {{-- Pagination akan diisi oleh Javascript --}}
         </div>
 
         {{-- Tombol Tambah Penduduk --}}
@@ -121,4 +104,5 @@
 
 @section('scripts')
     <script type="module" src="{{ asset('js/data-penduduk.js') }}?v={{ time() }}" defer></script>
+    <script type="module" src="{{ asset('js/table-utils.js') }}" defer></script>
 @endsection

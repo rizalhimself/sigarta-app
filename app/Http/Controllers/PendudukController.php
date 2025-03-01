@@ -12,25 +12,9 @@ use Illuminate\Support\Facades\Log;
 class PendudukController extends Controller
 {
     // Menampilkan data penduduk
-    public function index(Request $request)
+    public function index()
     {
-        $query = Warga::with(['keluarga', 'user']);
-
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-
-            $query->where(function ($subQuery) use ($search) {
-                $subQuery->where('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('nik', 'like', "%{$search}%")
-                    ->orWhere('no_telfon', 'like', "%{$search}%");
-            })->orWhereHas('user', function ($userQuery) use ($search) {
-                $userQuery->where('username', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $warga = $query->paginate(10);
-        return view('kependudukan.data-penduduk', compact('warga'));
+        return view('kependudukan.data-penduduk');
     }
 
     // Menampilkan detail penduduk
@@ -254,27 +238,30 @@ class PendudukController extends Controller
     public function search(Request $request)
     {
         try {
-            if (!$request->has('q')) {
-                return response()->json(['error' => 'Parameter q diperlukan'], 400);
-            }
 
-            $search = $request->input('q');
+            $query = Warga::with(['keluarga.rumah', 'user']);
 
-            \Log::info("🔎 Search Query: ", ['query' => $search]); // Logging Debug
+            if ($request->has('q') && !empty($request->q)) {
+                $search = $request->input('q');
+                 \Log::info("🔎 Search Query: ", ['query' => $search]); // Logging Debug
 
-            $warga = Warga::with(['keluarga.rumah', 'user'])
+            $query
                 ->where('nama_lengkap', 'like', "%{$search}%")
                 ->orWhere('nik', 'like', "%{$search}%")
                 ->orWhere('no_telfon', 'like', "%{$search}%")
                 ->orWhereHas('user', function ($userQuery) use ($search) {
                     $userQuery->where('username', 'like', "%{$search}%")
                         ->orWhere('email', 'like', "%{$search}%");
-                })
-                ->get();
+                });
+            }
+
+            // paginate dengan limit 5 data per halaman
+            $warga = $query->paginate(5);
 
             // ✅ Tambahkan umur secara manual ke setiap objek warga
             $warga->each(function ($w) {
                 $w->umur = \Carbon\Carbon::parse($w->tgl_lahir)->age;
+                return $w;
             });
 
             return response()->json($warga, 200);
@@ -285,4 +272,3 @@ class PendudukController extends Controller
         }
     }
 }
-

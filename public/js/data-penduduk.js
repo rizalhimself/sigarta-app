@@ -4,6 +4,17 @@ import { sortTable, searchData, fetchDataTable } from "./table-utils.js";
 document.addEventListener("DOMContentLoaded", function () {
     console.log("✅ Data Penduduk JS Loaded!"); // Debugging
 
+    // tampilkan data penduduk dengan AJAX dan fetch semua data penduduk di tabel
+    const searchInput = document.getElementById("searchPenduduk"); // Ambil input search
+    if (!searchInput) return;
+    searchData(
+        searchInput,
+        "pendudukTable",
+        "/data-penduduk/search",
+        generatePendudukRow
+    );
+    fetchDataTable("pendudukTable");
+
     // event delegattion untuk modal, delete, dan edit penduduk
     document.addEventListener("click", async (e) => {
         if (e.target.matches(".editPendudukBtn")) {
@@ -34,12 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // event listener untuk pencarian penduduk dengan debounce
     let searchTimeout;
-    const searchInput = document.getElementById("searchPenduduk");
-    if (!searchInput) return;
-
-    // ✅ Fetch semua data penduduk saat halaman pertama kali dimuat
-    fetchDataTable("pendudukTable");
-
     searchInput.addEventListener("input", () => {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
@@ -62,7 +67,9 @@ window.generatePendudukForm = (data = null) => {
     const isEdit = data !== null;
 
     // tentukan action url dan method form berdasarkan keggunaan edir/tambah
-    const actionUrl = isEdit ? `/data-penduduk/${data.id}` : `/data-penduduk/store`;
+    const actionUrl = isEdit
+        ? `/data-penduduk/${data.id}`
+        : `/data-penduduk/store`;
     const method = isEdit ? "PUT" : "POST";
 
     // generate input tersembunyi
@@ -221,7 +228,7 @@ window.generatePendudukForm = (data = null) => {
                     <label class="block text-sm font-medium">Agama</label>
                     <select name="agama" class="w-full p-2 border rounded focus:ring focus:ring-blue-300" required>
                         <option value="" ${
-                            agama === "" ? "selected" : ""  
+                            agama === "" ? "selected" : ""
                         }>Pilih Agama</option>
                         <option value="Islam" ${
                             agama === "Islam" ? "selected" : ""
@@ -372,13 +379,23 @@ window.showAddForm = () => {
             });
 
         const passwordInput = document.querySelector('input[name="password"]');
-        const passwordConfirmationInput = document.querySelector('input[name="password_confirmation"]');
+        const passwordConfirmationInput = document.querySelector(
+            'input[name="password_confirmation"]'
+        );
         const passwordError = document.getElementById("passwordError");
-        const passwordMatchError = document.getElementById("passwordMatchError");
-        const passwordConfirmationError = document.getElementById("passwordConfirmationError");
-        const passwordConfirmationMatchError = document.getElementById("passwordConfirmationMatchError");
+        const passwordMatchError =
+            document.getElementById("passwordMatchError");
+        const passwordConfirmationError = document.getElementById(
+            "passwordConfirmationError"
+        );
+        const passwordConfirmationMatchError = document.getElementById(
+            "passwordConfirmationMatchError"
+        );
         passwordInput.addEventListener("input", validatePasswordConfirmation);
-        passwordConfirmationInput.addEventListener("input", validatePasswordConfirmation);
+        passwordConfirmationInput.addEventListener(
+            "input",
+            validatePasswordConfirmation
+        );
         function validatePasswordConfirmation() {
             const password = passwordInput.value;
             const passwordConfirmation = passwordConfirmationInput.value;
@@ -388,7 +405,6 @@ window.showAddForm = () => {
                 passwordMatchError.style.display = "none";
                 passwordConfirmationError.style.display = "block";
                 passwordConfirmationMatchError.style.display = "none";
-
             } else if (password !== passwordConfirmation) {
                 passwordError.style.display = "none";
                 passwordMatchError.style.display = "block";
@@ -400,7 +416,7 @@ window.showAddForm = () => {
                 passwordConfirmationError.style.display = "none";
                 passwordConfirmationMatchError.style.display = "none";
             }
-        }   
+        }
     } catch (error) {
         console.error("❌ Error menampilkan form tambah penduduk", error);
     }
@@ -427,7 +443,7 @@ document.addEventListener("click", async (e) => {
             console.log("Form data yang dikirim untuk tambah:", formData);
         } else if (method === "PUT") {
             // Untuk edit data (PUT)
-            formData.append("_method", "PUT");  // Pastikan ini menggunakan PUT saat edit
+            formData.append("_method", "PUT"); // Pastikan ini menggunakan PUT saat edit
             console.log("Form data yang dikirim untuk edit:", formData);
         }
 
@@ -445,8 +461,13 @@ document.addEventListener("click", async (e) => {
             const result = await response.json();
             if (result.success) {
                 alert(result.message);
-                fetchDataTable("pendudukTable");
-                updateTableRow(formData.get("id"));
+                if (method === "POST") {
+                    updateTable();
+                } else if (method === "PUT") {
+                    fetchDataTable("pendudukTable");
+                    updateTableRow(formData.get("id"));
+                }
+                console.log("✅ Method yang dipakai:", method);
                 closeModal();
             } else {
                 alert(
@@ -481,7 +502,6 @@ window.showEditForm = async (id) => {
     }
 };
 
-
 // fungsi untuk mengupdate tampilan tabel setelah edit
 const updateTableRow = async (id) => {
     try {
@@ -506,6 +526,20 @@ const updateTableRow = async (id) => {
         }
     } catch (error) {
         console.error("❌ Error Updating Table Row:", error);
+    }
+};
+
+// fungsi untuk megupdate tampilan seluruh data di tabel
+const updateTable = async () => {
+    try {
+        searchData(
+            document.getElementById("searchPenduduk"),
+            "pendudukTable",
+            "/data-penduduk/search",
+            generatePendudukRow
+        );
+    } catch (error) {
+        console.error("❌ Error Updating Table:", error);
     }
 };
 
@@ -542,11 +576,11 @@ const deletePenduduk = async (id) => {
 };
 
 // callback table fungsu search
-window.generatePendudukRow = (w, index) => `
+const generatePendudukRow = (w, index, currentPage, perPage) => `
 <tr id="row-${
     w.id
 }" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-    <td class="px-6 py-4">${index + 1}</td>
+    <td class="px-6 py-4">${(currentPage - 1) * perPage + (index +1)}</td>
     <td class="px-6 py-4 col-no-rumah">${
         w.keluarga?.rumah?.no_rumah ?? "-"
     }</td>

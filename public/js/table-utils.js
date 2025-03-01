@@ -43,16 +43,17 @@ export const searchData = async (
     searchInput,
     tableId,
     apiEndpoint,
-    rowGenerator
+    rowGenerator,
+    currentPage = 1
 ) => {
     if (!searchInput || !(searchInput instanceof HTMLInputElement)) {
         return;
     }
 
-    const searchValue = searchInput.value.trim();
-    if (searchValue === "") return;
+    const searchValue = searchInput ? searchInput.value.trim() : "";
+    const url = searchValue ? `${apiEndpoint}?q=${encodeURIComponent(searchValue)}&page=${currentPage}` 
+        : `${apiEndpoint}?page=${currentPage}`;
 
-    const url = `${apiEndpoint}?q=${encodeURIComponent(searchValue)}`;
     console.log(`🚀 Mengambil data dari: ${url}`);
 
     try {
@@ -67,10 +68,14 @@ export const searchData = async (
             return;
         }
 
-        tableBody.innerHTML = data.length
-            ? data.map((item, index) => rowGenerator(item, index)).join("")
+        tableBody.innerHTML = data.data.length
+            ? data.data.map((item, index) => rowGenerator(item, index, data.current_page, data.per_page)).join("")
             : `<tr class='bg-white border-b dark:bg-gray-800 dark:border-gray-700'>
                 <td colspan='7' class='text-center px-6 py-4'>Data tidak ditemukan.</td></tr>`;
+
+        // update pagination
+        updatePagination(data.current_page, data.last_page, tableId, searchInput, rowGenerator, apiEndpoint);
+
     } catch (error) {
         console.error("❌ Error Fetching Data:", error);
     }
@@ -104,3 +109,32 @@ export const fetchDataTable = (tableId) => {
 
 // ✅ Pastikan bisa dipanggil di HTML dan `data-penduduk.js`
 window.fetchDataTable = fetchDataTable;
+
+// function untuk update pagination
+const updatePagination = (currentPage, totalPage, tableId, searchInput, rowGenerator, apiEndpoint) => {
+    console.log(`📌 Debug Pagination: Halaman ${currentPage} dari ${totalPage}`);
+
+    const paginationContainer = document.getElementById(`${tableId}-pagination`);
+    if (!paginationContainer) {
+        console.error(`Pagination container not found`);
+        return;
+    }
+    paginationContainer.innerHTML = '';
+
+    for (let i = 1; i<= totalPage; i++) {
+        console.log(`✅ Membuat tombol pagination untuk halaman ${i}`);
+        
+        const pageButton = document.createElement("button");
+        pageButton.textContent = i;
+        pageButton.onclick = () => loadPage(i, tableId, searchInput, apiEndpoint, rowGenerator);
+        if (i === currentPage) {
+            pageButton.disabled = true;
+        }
+        paginationContainer.appendChild(pageButton);
+    }
+};
+
+// function untuk load halaman tertentu
+const loadPage = (page, tableId, searchInput, apiEndpoint, rowGenerator) => {
+    searchData(searchInput, tableId, apiEndpoint, rowGenerator, page);
+};

@@ -10,7 +10,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     <script type="module" src="{{ asset('js/modal.js') }}"></script>
-    <script type="module" src="{{ asset('js/table-utils.js') }}"></script>
 
     @yield('scripts');
 </head>
