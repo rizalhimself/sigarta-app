@@ -6,14 +6,27 @@ export const sortTable = (tableId, columnClass) => {
         return;
     }
 
-    const rows = Array.from(table.rows);
+    const rows = Array.from(table.rows); // skip header row
     const header = document.querySelector(`th[data-column="${columnClass}"]`);
+    if (!header) {
+        console.log(`Column with class ${columnClass} not found`);
+        return;
+    }
+
     const order = header.dataset.order === "desc" ? "asc" : "desc"; // toggle sorting order
     header.dataset.order = order; // simpan order baru di attribut data
 
     rows.sort((a, b) => {
-        let aText = a.querySelector(`.${columnClass}`).textContent.trim() || "";
-        let bText = b.querySelector(`.${columnClass}`).textContent.trim() || "";
+        let aCell = a.querySelector(`.${columnClass}`);
+        let bCell = b.querySelector(`.${columnClass}`);
+
+        if (!aCell || !bCell) {
+            console.log(`Column with class ${columnClass} not found`);
+            return 0;
+        }
+
+        let aText = aCell.textContent.trim() || "";
+        let bText = bCell.textContent.trim() || "";
 
         // jika data berupa angka, maka sorting berdasarkan angka
         if (!isNaN(parseFloat(aText)) && !isNaN(parseFloat(bText))) {

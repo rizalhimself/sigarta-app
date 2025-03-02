@@ -580,7 +580,7 @@ const generatePendudukRow = (w, index, currentPage, perPage) => `
 <tr id="row-${
     w.id
 }" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-    <td class="px-6 py-4">${(currentPage - 1) * perPage + (index +1)}</td>
+    <td class="px-6 py-4 col-no">${(currentPage - 1) * perPage + (index +1)}</td>
     <td class="px-6 py-4 col-no-rumah">${
         w.keluarga?.rumah?.no_rumah ?? "-"
     }</td>
