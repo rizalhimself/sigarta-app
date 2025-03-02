@@ -70,7 +70,6 @@ window.generatePendudukForm = (data = null) => {
     const actionUrl = isEdit
         ? `/data-penduduk/${data.id}`
         : `/data-penduduk/store`;
-    const method = isEdit ? "PUT" : "POST";
 
     // generate input tersembunyi
     const hiddenInputs = isEdit
@@ -100,7 +99,7 @@ window.generatePendudukForm = (data = null) => {
     const linkFotoKTP = isEdit ? data.link_foto_ktp : "";
 
     return `
-    <form id="pendudukForm" action="${actionUrl}" method="${method}" enctype="multipart/form-data">
+    <form id="pendudukForm" action="${actionUrl}" method="POST" enctype="multipart/form-data">
             ${hiddenInputs}
                 <!-- Data User -->
                 <div>
@@ -436,21 +435,17 @@ document.addEventListener("click", async (e) => {
             formData.delete("password");
         }
 
-        // Tentukan method sesuai dengan apakah ini form tambah atau edit
-        const method = form.method; // Ambil method dari form (POST atau PUT)
-        if (method === "POST") {
-            // Untuk tambah data (POST)
-            console.log("Form data yang dikirim untuk tambah:", formData);
-        } else if (method === "PUT") {
-            // Untuk edit data (PUT)
-            formData.append("_method", "PUT"); // Pastikan ini menggunakan PUT saat edit
-            console.log("Form data yang dikirim untuk edit:", formData);
-        }
+        // Debugging untuk memastikan method benar
+        console.log("🛠️ Form method (harus POST):", form.method);
+        console.log(
+            "🛠️ Ada _method PUT?:",
+            form.querySelector('input[name="_method"]')?.value
+        );
 
         //proses data sesuai dengan method form
         try {
             const response = await fetch(form.action, {
-                method: method, //method yang diatur di form
+                method: "POST",
                 headers: {
                     "X-Requested-With": "XMLHttpRequest",
                     Accept: "application/json",
@@ -461,13 +456,8 @@ document.addEventListener("click", async (e) => {
             const result = await response.json();
             if (result.success) {
                 alert(result.message);
-                if (method === "POST") {
-                    updateTable();
-                } else if (method === "PUT") {
-                    fetchDataTable("pendudukTable");
-                    updateTableRow(formData.get("id"));
-                }
-                console.log("✅ Method yang dipakai:", method);
+                fetchDataTable("pendudukTable");
+                updateTable();
                 closeModal();
             } else {
                 alert(
@@ -499,33 +489,6 @@ window.showEditForm = async (id) => {
             "Terjadi kesalahan saat mengambil data!",
             '<button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Tutup</button>'
         );
-    }
-};
-
-// fungsi untuk mengupdate tampilan tabel setelah edit
-const updateTableRow = async (id) => {
-    try {
-        const response = await fetch(`/data-penduduk/${id}`);
-        const data = await response.json();
-        const row = document.querySelector(`#row-${id}`);
-
-        if (row) {
-            row.querySelector(".col-nama").textContent = data.nama_lengkap;
-            row.querySelector(".col-jenis-kelamin").textContent =
-                data.jenis_kelamin;
-            row.querySelector(".col-umur").innerText = data.umur;
-            row.querySelector(".col-no-rumah").innerText =
-                data.keluarga?.rumah?.no_rumah || "-";
-            row.querySelector(".col-keluarga-id").innerText =
-                data.keluarga?.id || "-";
-
-            row.classList.add("bg-green-100");
-            setTimeout(() => {
-                row.classList.remove("bg-green-100");
-            }, 3000);
-        }
-    } catch (error) {
-        console.error("❌ Error Updating Table Row:", error);
     }
 };
 
@@ -580,7 +543,9 @@ const generatePendudukRow = (w, index, currentPage, perPage) => `
 <tr id="row-${
     w.id
 }" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-    <td class="px-6 py-4 col-no">${(currentPage - 1) * perPage + (index +1)}</td>
+    <td class="px-6 py-4 col-no">${
+        (currentPage - 1) * perPage + (index + 1)
+    }</td>
     <td class="px-6 py-4 col-no-rumah">${
         w.keluarga?.rumah?.no_rumah ?? "-"
     }</td>
