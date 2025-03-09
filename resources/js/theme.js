@@ -122,10 +122,16 @@ document.addEventListener('DOMContentLoaded', function () {
             // Jika layar besar, toggle class untuk menyembunyikan teks menu
             sidebar.classList.toggle('sidebar-collapsed');
             greetingSection.classList.toggle('hidden');
-            if (mainContent.classList.contains('lg:pl-64')) {
-                mainContent.classList.remove("lg:pl-64");
+            if (mainContent.classList.contains('lg:ml-80' && 'lg:px-16')) {
+                mainContent.classList.remove("lg:ml-80");
+                mainContent.classList.remove("lg:px-16");
+                mainContent.classList.add("lg:ml-56");
+                mainContent.classList.add("lg:px-3");
             } else {
-                mainContent.classList.add("lg:pl-64");
+                mainContent.classList.add("lg:ml-80");
+                mainContent.classList.add("lg:px-16");
+                mainContent.classList.remove("lg:ml-56");
+                mainContent.classList.remove("lg:px-3");
             }
         } else {
             // Jika layar kecil, sembunyikan sidebar sepenuhnya

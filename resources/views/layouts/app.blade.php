@@ -21,17 +21,13 @@
         @include('components.navbar')
         {{-- End NavBar --}}
 
-        <div class="container flex items-stretch mx-auto max-h-full">
+        <!-- Sidebar -->
+        @include('components.sidebar')
 
-            <!-- Sidebar -->
-            @include('components.sidebar')
-
-            <!-- Main Content -->
-            <main id="mainContent" class="flex p-6 transition-all duration-300 lg:pl-64">
-                @yield('content')
-            </main>
-
-        </div>
+        <!-- Main Content -->
+        <main id="mainContent" class="flex mt-7 mx-auto w-full lg:ml-80 lg:w-auto flex-grow max-w-5xl sm:px-10 md:px-16 lg:px-16 transition-all duration-300">
+            @yield('content')
+        </main>
 
     </div>
     <!-- Import Modal Global -->

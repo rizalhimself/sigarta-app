@@ -1,4 +1,4 @@
-<aside id="sidebar" class="absolute max-h-max flex flex-col top-14 left-0 z-40 w-64 transition-transform -translate-x-full lg:translate-x-0" aria-label="Sidebar">
+<aside id="sidebar" class="fixed h-auto min-h-[calc(100vh-3.5rem)] flex flex-col top-14 left-0 z-40 w-64 transition-transform -translate-x-full lg:translate-x-0" aria-label="Sidebar">
     <div class="flex-grow px-3 py-4 bg-gray-50 dark:bg-gray-800">
         <div class="px-4 border-b border-gray-200 dark:border-gray-700" id="greeting-section">
             @include('components.sidebar-greetings')
