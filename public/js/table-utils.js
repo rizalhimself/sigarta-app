@@ -134,18 +134,33 @@ const updatePagination = (currentPage, totalPage, tableId, searchInput, rowGener
     }
     paginationContainer.innerHTML = '';
 
-    for (let i = 1; i<= totalPage; i++) {
-        console.log(`✅ Membuat tombol pagination untuk halaman ${i}`);
-        
+    // tombol previous
+    const prevButton = document.createElement("button");
+    prevButton.innerHTML =  `<i class="fas fa-angle-left"></i>`;
+    prevButton.className = "px-3 py-2 border rounded-md text-gray-700 hover:bg-gray-200 disabled:opacity-50";
+    prevButton.disabled = currentPage === 1;
+    prevButton.onclick = () => loadPage(currentPage - 1, tableId, searchInput, apiEndpoint, rowGenerator);
+    paginationContainer.appendChild(prevButton);
+
+    for (let i = 1; i <= totalPage; i++) {
         const pageButton = document.createElement("button");
         pageButton.textContent = i;
+        pageButton.className = `px-3 py-2 border rounded-md hover:bg-gray-200 ${
+            i === currentPage ? "bg-blue-500 text-white" : "text-gray-700"  
+        }`
+        pageButton.disabled = i === currentPage;
         pageButton.onclick = () => loadPage(i, tableId, searchInput, apiEndpoint, rowGenerator);
-        if (i === currentPage) {
-            pageButton.disabled = true;
-        }
         paginationContainer.appendChild(pageButton);
     }
-};
+
+    // tombol next
+    const nextButton = document.createElement("button");
+    nextButton.innerHTML = `<i class="fas fa-angle-right"></i>`;
+    nextButton.className = "px-3 py-2 border rounded-md text-gray-700 hover:bg-gray-200 disabled:opacity-50";
+    nextButton.disabled = currentPage === totalPage;
+    nextButton.onclick = () => loadPage(currentPage + 1, tableId, searchInput, apiEndpoint, rowGenerator);
+    paginationContainer.appendChild(nextButton);
+}
 
 // function untuk load halaman tertentu
 const loadPage = (page, tableId, searchInput, apiEndpoint, rowGenerator) => {
