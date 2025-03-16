@@ -3,17 +3,17 @@
 @section('content')
     <div class="container items-center max-w-sm sm:max-w-full mx-auto p-3 lg:p-4">
         {{-- Judul Responsif --}}
-        <h2 class="text-lg md:text-2xl font-bold mb-4 text-center lg:text-left">Data Penduduk</h2>
+        <h2 class="text-lg md:text-2xl font-bold mb-6 text-center">Data Penduduk</h2>
 
         {{-- Search Bar Responsif --}}
-        <div class="flex justify-center">
+        <div class="flex justify-center lg:justify-end">
             <input type="text" id="searchPenduduk"
-                class="w-full max-w-xs md:max-w-md p-2 border rounded focus:ring focus:ring-blue-300"
+                class="w-full max-w-xs p-1 border rounded-lg focus:ring focus:ring-blue-300"
                 placeholder="Cari penduduk..." oninput="searchData()">
         </div>
 
         {{-- Tabel Scrollable di Semua Ukuran --}}
-        <div class="relative w-full overflow-x-auto shadow-md mt-4 rounded-lg sm:rounded-lg">
+        <div class="relative w-full overflow-x-auto shadow-md mt-2 rounded-lg sm:rounded-lg">
             <table class="w-full min-w-[700px] text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
@@ -87,14 +87,14 @@
             </table>
         </div>
 
-        <div class="flex flex-col md:flex-row items-center justify-between mt-4">
+        <div class="flex flex-col md:flex-row items-center justify-between mt-2">
             {{-- Tombol Tambah Penduduk --}}
             <button class="addPendudukBtn bg-green-500 text-white px-4 py-2 rounded w-full md:w-auto text-center">
                 Tambah Penduduk
             </button>
 
             {{-- Pagination --}}
-            <div class="pagination-container mt-4 md:mt-0" id="pendudukTable-pagination">
+            <div class="pagination-container mt-2 md:mt-0" id="pendudukTable-pagination">
                 {{-- Pagination akan diisi oleh Javascript --}}
             </div>
         </div>

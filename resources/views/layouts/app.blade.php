@@ -25,7 +25,7 @@
         @include('components.sidebar')
 
         <!-- Main Content -->
-        <main id="mainContent" class="flex mt-7 mx-auto w-full lg:ml-80 lg:w-auto flex-grow max-w-5xl sm:px-10 md:px-16 lg:px-16 transition-all duration-300">
+        <main id="mainContent" class="flex mt-10 mx-auto w-full lg:ml-80 lg:w-auto flex-grow max-w-5xl sm:px-10 md:px-16 lg:px-16 transition-all duration-300">
             @yield('content')
         </main>
 
