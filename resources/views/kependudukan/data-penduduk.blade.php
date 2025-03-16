@@ -57,7 +57,8 @@
                                 </svg>
                             </div>
                         </th>
-                        <th scope="col" class="px-6 py-3 cursor-pointer" data-column="col-jenis-kelamin" data-order="asc">
+                        <th scope="col" class="px-6 py-3 cursor-pointer" data-column="col-jenis-kelamin"
+                            data-order="asc">
                             <div class="flex items-center">
                                 Jenis Kelamin
                                 <svg class="w-3 h-3 ms-1.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -86,19 +87,17 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
-        <div class="pagination-container" id="pendudukTable-pagination">
-            {{-- Pagination akan diisi oleh Javascript --}}
-        </div>
-
-        {{-- Tombol Tambah Penduduk --}}
-        <div class="flex justify-center md:justify-start mt-4">
-            <button 
-                class="addPendudukBtn bg-green-500 text-white px-4 py-2 rounded w-full md:w-auto text-center">
+        <div class="flex flex-col md:flex-row items-center justify-between mt-4">
+            {{-- Tombol Tambah Penduduk --}}
+            <button class="addPendudukBtn bg-green-500 text-white px-4 py-2 rounded w-full md:w-auto text-center">
                 Tambah Penduduk
             </button>
-        </div>
 
+            {{-- Pagination --}}
+            <div class="pagination-container mt-4 md:mt-0" id="pendudukTable-pagination">
+                {{-- Pagination akan diisi oleh Javascript --}}
+            </div>
+        </div>
     </div>
 @endsection
 
