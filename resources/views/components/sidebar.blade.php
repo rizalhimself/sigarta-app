@@ -35,9 +35,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/kependudukan/kk-ktp" class="flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                        <a href="{{route('data-keluarga.index')}}" class="flex items-center px-4 py-2 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
                             <i class="fa-solid fa-id-card text-gray-500 mr-3"></i>
-                            KK & KTP
+                            Data Keluarga
                         </a>
                     </li>
                     <li>

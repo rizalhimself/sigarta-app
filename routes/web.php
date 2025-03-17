@@ -7,6 +7,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\PendudukController;
+use App\Http\Controllers\KeluargaController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -41,6 +42,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/data-penduduk/{id}', [PendudukController::class, 'show'])->name('data-penduduk.show');
     Route::put('/data-penduduk/{id}', [PendudukController::class, 'update'])->name('data-penduduk.update');
     Route::delete('/data-penduduk/{id}', [PendudukController::class, 'destroy'])->name('data-penduduk.destroy');
+});
+
+// route data keluarga
+Route::middleware(['auth'])->group(function () {
+    Route::get('/data-keluarga', [KeluargaController::class, 'index'])->name('data-keluarga.index');
+    Route::post('/data-keluarga/store', [KeluargaController::class, 'store'])->name('data-keluarga.store');
+    Route::get('/data-keluarga/search', [KeluargaController::class, 'search'])->name('data-keluarga.search');
+    Route::get('/data-keluarga/{id}', [KeluargaController::class, 'show'])->name('data-keluarga.show');
+    Route::put('/data-keluarga/{id}', [KeluargaController::class, 'update'])->name('data-keluarga.update');
+    Route::delete('/data-keluarga/{id}', [KeluargaController::class, 'destroy'])->name('data-keluarga.destroy');
 });
 
 require __DIR__ . '/auth.php';
