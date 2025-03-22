@@ -20,7 +20,7 @@ class PendudukController extends Controller
     // Menampilkan detail penduduk
     public function show($id)
     {
-        $warga = Warga::with(['keluarga.rumah', 'user'])->findOrFail($id);
+        $warga = Warga::with(['penghuniRumah.rumah', 'user'])->findOrFail($id);
 
         // Pastikan 'umur' dihitung secara otomatis
         $warga->umur = \Carbon\Carbon::parse($warga->tgl_lahir)->age;
@@ -239,7 +239,7 @@ class PendudukController extends Controller
     {
         try {
 
-            $query = Warga::with(['keluarga.rumah', 'user']);
+            $query = Warga::with(['penghuniRumah.rumah', 'user']);
 
             if ($request->has('q') && !empty($request->q)) {
                 $search = $request->input('q');

@@ -39,17 +39,11 @@ class Rumah extends Model
     // Kolom yang dapat diisi
     protected $fillable = [
         'no_rumah',
-        'pemilik_id',
         'alamat',
         'keterangan',
-        'link_foto'
+        'link_foto_rumah'
     ];
 
-    // Relasi ke model Warga
-    public function pemilik()
-    {
-        return $this->belongsTo(Warga::class, 'pemilik_id');
-    }
 
     // Relasi ke model PenghuniRumah
     public function penghuni()

@@ -32,22 +32,14 @@ class Keluarga extends Model
     protected $table = 'keluarga';
 
     protected $fillable = [
-        'warga_id',
-        'rumah_id',
+       
+        'no_kk',
+        'kepala_keluarga',
+        'link_foto_kk',
     ];
 
     public function kepalaKeluarga ()
     {
-        return $this->belongsTo(Warga::class, 'warga_id');
-    }
-
-    public function rumah()
-    {
-        return $this->belongsTo(Rumah::class, 'rumah_id');
-    }
-
-    public function penghuniRumah()
-    {
-        return $this->hasMany(PenghuniRumah::class, 'keluarga_id');
+        return $this->belongsTo(Warga::class, 'kepala_keluarga_id', 'id');
     }
 }

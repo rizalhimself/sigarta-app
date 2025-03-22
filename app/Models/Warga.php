@@ -112,7 +112,7 @@ class Warga extends Model
     // relasi ke tabel penghuni_rumah
     public function penghuniRumah()
     {
-        return $this->hasMany(PenghuniRumah::class, 'warga_id');
+        return $this->hasOne(PenghuniRumah::class, 'warga_id', 'id');
     }
 
     // relasi ke tabel wisata
@@ -121,22 +121,22 @@ class Warga extends Model
         return $this->hasMany(Wisata::class, 'warga_id');
     }
 
-    // relasi ke tabel rumah
-    public function rumah()
-    {
-        return $this->hasOne(Rumah::class, 'pemilik_id');
-    }
-
     // relasi ke tabel keluarga
     public function keluarga()  {
-        return $this->hasOne(Keluarga::class, 'warga_id');
+        return $this->hasMany(Keluarga::class, 'Kepala_keluarga_id', 'id');
     }
 
-     // Umur otomatis dihitung dari `tgl_lahir`
-     public function getUmurAttribute()
-     {
-         return Carbon::parse($this->tgl_lahir)->age;
-     }
+    // Umur otomatis dihitung dari `tgl_lahir`
+    public function getUmurAttribute()
+    {
+        return Carbon::parse($this->tgl_lahir)->age;
+    }
+
+    // relasi ke tabel anggota_keluarga
+    public function anggotaKeluarga()
+    {
+        return $this->hasOne(AnggotaKeluarga::class, 'warga_id', 'id');
+    }
 
     
 }

@@ -38,14 +38,15 @@ class PenghuniRumah extends Model
     protected $fillable = [
         'rumah_id',
         'warga_id',
-        'status',
-        'keluarga_id',
+        'status_penghuni',
+        'tanggal_mulai',
+        'tanggal_selesai',
     ];
 
     // Relasi ke model Rumah
     public function rumah()
     {
-        return $this->belongsTo(Rumah::class, 'rumah_id');
+        return $this->belongsTo(Rumah::class, 'rumah_id', 'id');
     }
 
     // Relasi ke model Warga
@@ -54,11 +55,6 @@ class PenghuniRumah extends Model
         return $this->belongsTo(Warga::class, 'warga_id');
     }
 
-    // Relasi ke model Keluarga
-    public function keluarga()
-    {
-        return $this->belongsTo(Keluarga::class, 'keluarga_id');
-    }
 
     // relasi ke model kebersihan
     public function kebersihan()
