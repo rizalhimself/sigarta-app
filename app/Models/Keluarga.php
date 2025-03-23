@@ -34,7 +34,7 @@ class Keluarga extends Model
     protected $fillable = [
        
         'no_kk',
-        'kepala_keluarga',
+        'kepala_keluarga_id',
         'link_foto_kk',
     ];
 
@@ -42,4 +42,10 @@ class Keluarga extends Model
     {
         return $this->belongsTo(Warga::class, 'kepala_keluarga_id', 'id');
     }
+
+    public function anggotaKeluarga ()
+    {
+        return $this->hasMany(AnggotaKeluarga::class, 'keluarga_id', 'id');
+    }
+
 }
