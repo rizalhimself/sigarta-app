@@ -81,10 +81,10 @@ class KeluargaController extends Controller
     public function search(Request $request)
     {
         try {
-            $q = $request->input('q');
-            $query = Keluarga::with(['kepalaKeluarga', 'anggotaKeluarga.warga']);
-    
-            if ($q) {
+            if ($request->has('q') && !empty($request->q)) {
+                $q = $request->input('q');
+                $query = Keluarga::with(['kepalaKeluarga', 'anggotaKeluarga.warga']);
+                
                 $query->where(function ($qe) use ($q) {
                     $qe->where('no_kk', 'like', "%$q%")
                       ->orWhereHas('kepalaKeluarga', function ($subQuery) use ($q) {
@@ -94,12 +94,15 @@ class KeluargaController extends Controller
                           $subQuery->where('nama_lengkap', 'like', "%$q%");
                       });
                 });
+
+                $keluarga = $query->paginate(5);
+            
+            } else {
+                $keluarga = Keluarga::with(['kepalaKeluarga', 'anggotaKeluarga.warga'])->paginate(5);
             }
-    
-            $keluarga = $query->paginate(5);
-    
+
             return response()->json($keluarga);
-    
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Terjadi kesalahan saat pencarian: ' . $e->getMessage()
