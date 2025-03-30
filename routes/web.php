@@ -45,13 +45,14 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // route data keluarga
-Route::middleware(['auth'])->group(function () {
-    Route::get('/data-keluarga', [KeluargaController::class, 'index'])->name('data-keluarga.index');
-    Route::post('/data-keluarga/store', [KeluargaController::class, 'store'])->name('data-keluarga.store');
-    Route::get('/data-keluarga/search', [KeluargaController::class, 'search'])->name('data-keluarga.search');
-    Route::get('/data-keluarga/{id}', [KeluargaController::class, 'show'])->name('data-keluarga.show');
-    Route::put('/data-keluarga/{id}', [KeluargaController::class, 'update'])->name('data-keluarga.update');
-    Route::delete('/data-keluarga/{id}', [KeluargaController::class, 'destroy'])->name('data-keluarga.destroy');
+Route::middleware(['auth'])->prefix('data-keluarga')->name('data-keluarga.')->group(function () {
+    Route::get('/', [KeluargaController::class, 'index'])->name('index');
+    Route::post('/store-keluarga', [KeluargaController::class, 'storeKeluarga'])->name('storeKeluarga');
+    Route::post('/store-anggota-keluarga', [KeluargaController::class, 'storeAnggotaKeluarga'])->name('storeAnggotaKeluarga');
+    Route::get('/search', [KeluargaController::class, 'search'])->name('search');
+    Route::get('/{id}', [KeluargaController::class, 'show'])->name('show');
+    Route::put('/{keluarga}', [KeluargaController::class, 'update'])->name('update');
+    Route::delete('/{id}', [KeluargaController::class, 'destroy'])->name('destroy');
 });
 
 require __DIR__ . '/auth.php';

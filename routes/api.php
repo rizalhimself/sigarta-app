@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/data-penduduk/search', [PendudukController::class, 'search']);
 
 // rute api data-keluarga
-Route::post('/data-keluarga/store', [KeluargaController::class, 'store']);
+Route::post('/data-keluarga/store-keluarga', [KeluargaController::class, 'storeKeluarga']);
+Route::post('/data-keluarga/store-anggota-keluarga', [KeluargaController::class, 'storeAnggotaKeluarga']);
 Route::get('/data-keluarga/search', [KeluargaController::class, 'search']);
 
