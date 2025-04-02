@@ -51,13 +51,30 @@ window.showDetail = async (id) => {
     try {
         const response = await fetch(`/data-keluarga/${id}`);
         const data = await response.json();
+
+        // pengurutan anggota keluarga berdasarkan status hubungan
+        const kepalaKeluarga = data.kepala_keluarga;
+        const anggotaLainya = data.anggota_keluarga.filter(
+            anggota => anggota.warga.id !== kepalaKeluarga.id
+        );
+        const order = { "Istri":1, "Suami":1, "Anak":2 }; 
+        anggotaLainya.sort((a,b)=> {
+            return (order[a.status_hubungan] || 99) - (order[b.status_hubungan] || 99);
+        })
+        const keluargaUrut = [
+            {
+                warga: kepalaKeluarga,
+                status_hubungan: "Kepala Keluarga"
+            },
+            ...anggotaLainya
+        ];
         showModal(
             "Detail Keluarga - " +
                 (data.kepala_keluarga.jenis_kelamin == "L" ? "Bp. " : "Ibu. ") +
                 data.kepala_keluarga.nama_lengkap,
             `
             <div class="grid grid-cols-3 gap-4 p-2">
-                ${data.anggota_keluarga
+                ${keluargaUrut
                     .map(
                         (anggota) => `
                         <div class="text-center">
