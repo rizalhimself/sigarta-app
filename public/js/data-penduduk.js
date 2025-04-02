@@ -549,7 +549,6 @@ const generatePendudukRow = (w, index, currentPage, perPage) => `
     <td class="px-6 py-4 col-no-rumah">${
         w.keluarga?.rumah?.no_rumah ?? "-"
     }</td>
-    <td class="px-6 py-4 col-keluarga-id">${w.keluarga?.id ?? "-"}</td>
     <td data-id="${w.id}" 
         class="detailPendudukBtn px-6 py-4 text-blue-500 cursor-pointer col-nama">${
             w.nama_lengkap
