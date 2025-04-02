@@ -3,6 +3,14 @@ import { sortTable, searchData, fetchDataTable } from "./table-utils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
     console.log(" Data Keluarga JS Loaded");
+    
+    // event delegation untuk modal, delete, dan edit
+    document.addEventListener("click", async (e) => {
+        if (e.target.matches(".detailKeluargaBtn")) {
+            const id = e.target.dataset.id;
+            await showDetail(id);
+        }
+    });
 
     // tampilkan data keluarga dengan fetch 
     const searchInput = document.getElementById("searchKeluarga"); // input pencarian
@@ -38,6 +46,45 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// fetch data detail keluarga
+window.showDetail = async (id) => {
+    try {
+        const response = await fetch(`/data-keluarga/${id}`);
+        const data = await response.json();
+        showModal(
+            "Detail Keluarga - " +
+                (data.kepala_keluarga.jenis_kelamin == "L" ? "Bp. " : "Ibu. ") +
+                data.kepala_keluarga.nama_lengkap,
+            `
+            <div class="grid grid-cols-3 gap-4 p-2">
+                ${data.anggota_keluarga
+                    .map(
+                        (anggota) => `
+                        <div class="text-center">
+                            <img src="${
+                                anggota.warga.link_foto
+                                    ? `/storage/${anggota.warga.link_foto}`
+                                    : "/storage/default-avatar.png"
+                            }" class="w-16 h-16 rounded-full mx-auto border shadow">
+                            <p class="mt-2 font-semibold">${anggota.warga.nama_lengkap}</p>
+                            <p class="text-sm text-gray-600">${anggota.status_hubungan}</p>
+                        </div>
+                    `
+                    )
+                    .join("")}
+            </div>
+            `,
+            `<button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Tutup</button>`
+        );
+    } catch (error) {
+        showModal(
+            "Error",
+            "Terjadi kesalahan saat mengambil data!" + error.message,
+            '<button id="closeModalButton" class="bg-gray-500 text-white px-4 py-2 rounded">Tutup</button>'
+        );
+    }
+};
+
 
 // callback untuk membuat row pada tabel keluarga
 const generateKeluargaRow = (w, index, currentPage, perPage) => `
@@ -47,7 +94,8 @@ const generateKeluargaRow = (w, index, currentPage, perPage) => `
     <td class="px-6 py-4 col-no">${(currentPage - 1) * perPage + (index + 1)}</td>
     <td class="px-6 py-4 col-no-kk">${w.no_kk ?? "-"}</td>
     <td class="px-6 py-4 col-nama-kk">${w.kepala_keluarga?.nama_lengkap ?? "-"}</td>
-    <td class="px-6 py-4 col-jumlah-anggota-kk">${
+    <td data-id="${w.id}"
+     class="detailKeluargaBtn px-6 py-4 cursor-pointer col-jumlah-anggota-kk">${
         w.anggota_keluarga ? w.anggota_keluarga.length : "-"
     }</td>
     <td class="px-6 py-4">

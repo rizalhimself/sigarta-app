@@ -15,6 +15,13 @@ class KeluargaController extends Controller
         return view('kependudukan.data-keluarga');
     }
 
+    // bikin show untuk menampilkan detail dari keluarga
+    public function show($id)
+    {
+        $keluarga = Keluarga::with(['kepalaKeluarga', 'anggotaKeluarga.warga'])->findOrFail($id);
+        return response()->json($keluarga);
+    }
+
     public function storeKeluarga(Request $request)
     {
         try {
